@@ -17,9 +17,9 @@ Tech Blog
 インストールと起動方法
 ========================
 
-    |$ git clone https://github.com/yu-sekita/Tech-Blog
-    |$ cd Tech-Blog
-    |$ pipenv install
-    |$ pipenv shell
-    |$ cd Tech_Blog
-    |$ ./manage.py runserver
+    | $ git clone https://github.com/yu-sekita/Tech-Blog
+    | $ cd Tech-Blog
+    | $ pipenv install
+    | $ pipenv shell
+    | $ cd Tech_Blog
+    | $ ./manage.py runserver
