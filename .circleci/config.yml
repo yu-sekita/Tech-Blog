@@ -5,4 +5,9 @@ jobs:
             - image: circleci/python:3.7
         steps:
             - checkout
-            - run: echo "hello world"
+            - run: |
+                pipenv install django==2.2.1
+                pipenv shell
+                cd Tech_Blog
+                python manage.py migrate
+                python manage.py test
