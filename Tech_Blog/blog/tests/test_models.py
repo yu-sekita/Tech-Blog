@@ -13,7 +13,10 @@ class ArticleTest(TestCase):
         ])
 
     def test_create_article(self):
+<<<<<<< HEAD:Tech_Blog/blog/tests/test_models.py
         """記事が正常に登録されることの確認"""
+=======
+>>>>>>> c8f01a52595e96cc302f477f1ae9b71fb1e8c9e2:Tech_Blog/blog/tests.py
         articles = Article.objects.all()
 
         self.assertEqual(articles.count(), 3)
