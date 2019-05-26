@@ -8,7 +8,7 @@ class ArticleListViewTest(TestCase):
     """記事を表示するviewのテスト"""
     def test_no_article(self):
         """記事が何も作られていないことの確認"""
-        response = self.client.get('')
+        response = self.client.get(reverse('blog:index'))
         # ステータス
         self.assertEqual(response.status_code, 200)
         # テンプレート
@@ -20,7 +20,7 @@ class ArticleListViewTest(TestCase):
         """記事が1つ作られている場合の確認"""
         Article.objects.create(title='Test1', text='Test1 text')
 
-        response = self.client.get('')
+        response = self.client.get(reverse('blog:index'))
         # ステータス
         self.assertEqual(response.status_code, 200)
         # テンプレート
@@ -34,7 +34,7 @@ class ArticleListViewTest(TestCase):
         Article.objects.create(title='Test1', text='Test1 text')
         Article.objects.create(title='Test2', text='Test2 text')
 
-        response = self.client.get('')
+        response = self.client.get(reverse('blog:index'))
         # ステータス
         self.assertEqual(response.status_code, 200)
         # テンプレート
@@ -48,3 +48,38 @@ class ArticleListViewTest(TestCase):
             ],
             ordered=False
         )
+
+
+class ArticleCreateViewTest(TestCase):
+    """記事を追加するviewのテスト"""
+    def test_get(self):
+        """getリクエスト時のテスト"""
+        response = self.client.get(reverse('blog:create'))
+        # ステータス
+        self.assertEqual(response.status_code, 200)
+        # テンプレート
+        self.assertTemplateUsed(response, 'blog/create.html')
+
+    def test_no_dada(self):
+        """空のデータでpost時のテスト"""
+        data = {}
+        response = self.client.post(reverse('blog:create'), data=data)
+        # ステータス
+        self.assertEqual(response.status_code, 200)
+        # テンプレート
+        self.assertTemplateUsed(response, 'blog/create.html')
+
+    def test_with_dada(self):
+        """データ有りpost時のテスト"""
+        data = {
+            'title': 'Test1',
+            'text': 'Test1 text'
+        }
+        response = self.client.post(reverse('blog:create'), data=data)
+        # ステータス
+        self.assertEqual(response.status_code, 302)
+
+        # DBに登録されていることの確認
+        articles = Article.objects.all()
+        self.assertEqual(articles[0].title, 'Test1')
+        self.assertEqual(articles.count(), 1)
