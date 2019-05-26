@@ -12,5 +12,8 @@ class ArticleTest(TestCase):
         ])
 
     def test_create_article(self):
-        result = Article.objects.all().count()
-        self.assertEqual(result, 3)
+        articles = Article.objects.all()
+
+        self.assertEqual(articles.count(), 3)
+        self.assertEqual(articles[0].title, 'Test1')
+        self.assertEqual(articles[1].text, 'Test2 text')
