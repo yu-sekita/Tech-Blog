@@ -1,15 +1,11 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-    <head>
-        <meta charset="utf-8">
-        <title></title>
-    </head>
-    <body>
-        <h1>hello world</h1>
-        <ul>
-            {% for article in articles %}
-            <li>{{ article.title }}: {{ article.text}}</li>
-            {% endfor %}
-        </ul>
-    </body>
-</html>
+{% extends 'blog/base.html' %}
+
+{% block content %}
+    <h1>hello world</h1>
+    <a href="{% url 'blog:create' %}">記事を作る</a>
+    <ul>
+        {% for article in articles %}
+        <li>{{ article.title }}: {{ article.text}}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
