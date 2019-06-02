@@ -7,8 +7,11 @@ jobs:
             - checkout
             - run: |
                 pipenv install flake8
-                cd Tech_Blog
-                pipenv run flake8 blog
+                cd Tech_Blog/blog
+                pipenv run flake8 forms.py
+                pipenv run flake8 models.py
+                pipenv run flake8 urls.py
+                pipenv run flake8 views.py
 
     test:
         docker:
