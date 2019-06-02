@@ -8,9 +8,9 @@ import uuid
 
 class Migration(migrations.Migration):
 
-    # dependencies = [
-    #     ('blog', '0009_auto_20190601_0724'),
-    # ]
+    dependencies = [
+        ('blog', '0009_auto_20190601_0724'),
+    ]
 
     operations = [
         migrations.AlterField(
