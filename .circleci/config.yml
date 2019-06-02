@@ -8,6 +8,5 @@ jobs:
             - run: |
                 pipenv install django==2.2.1
                 cd Tech_Blog
-                pipenv run python manage.py makemigrations
                 pipenv run python manage.py migrate
                 pipenv run python manage.py test
