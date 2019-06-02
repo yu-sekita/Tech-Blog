@@ -8,7 +8,7 @@ jobs:
             - run: |
                 pipenv install flake8
                 cd Tech_Blog
-                flake8 blog
+                pipenv run flake8 blog
 
     test:
         docker:
