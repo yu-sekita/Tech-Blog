@@ -24,6 +24,7 @@ jobs:
 workflows:
     version: 2
     myworkflow:
-        - test:
-            requires:
-                - lint
+        jobs:
+            - test:
+                requires:
+                    - lint
