@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
@@ -5,6 +7,8 @@ from django.utils import timezone
 
 class Article(models.Model):
     """記事"""
+    # pkにuuidを使う
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     title = models.CharField('タイトル', max_length=255)
     text = models.TextField('本文')
     created_at = models.DateTimeField('作成日', default=timezone.now())

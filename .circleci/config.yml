@@ -1,6 +1,19 @@
 version: 2
 jobs:
-    build:
+    lint:
+        docker:
+            - image: circleci/python:3.7
+        steps:
+            - checkout
+            - run: |
+                pipenv install flake8
+                cd Tech_Blog/blog
+                pipenv run flake8 forms.py
+                pipenv run flake8 models.py
+                pipenv run flake8 urls.py
+                pipenv run flake8 views.py
+
+    test:
         docker:
             - image: circleci/python:3.7
         steps:
@@ -10,3 +23,12 @@ jobs:
                 cd Tech_Blog
                 pipenv run python manage.py migrate
                 pipenv run python manage.py test
+
+workflows:
+    version: 2
+    myworkflow:
+        jobs:
+            - lint
+            - test:
+                requires:
+                    - lint
