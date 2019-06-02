@@ -25,6 +25,10 @@ workflows:
     version: 2
     myworkflow:
         jobs:
+            - lint:
+                filters:
+                    branches:
+                        only: master
             - test:
                 requires:
                     - lint
