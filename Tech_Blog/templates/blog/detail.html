@@ -1,0 +1,11 @@
+
+{% extends 'blog/base.html' %}
+
+{% block title %}blog詳細{% endblock %}
+
+{% block content %}
+    <div class="container" style="margin-top: 100px;">
+        <h2>{{ article.title }}</h2>
+        <p>{{ article.text }}</p>
+    </div>
+{% endblock %}
