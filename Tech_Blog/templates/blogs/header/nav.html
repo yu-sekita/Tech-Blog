@@ -8,15 +8,30 @@
     <div class="collapse navbar-collapse" id="Navber">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'blogs:index' %}">一覧</a>
+                <a class="nav-link" href="{% url 'blogs:index' %}">Home</a>
             </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'blogs:create' %}">新規作成</a>
-            </li>
+            {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'blogs:create' %}">Create</a>
+                </li>
+            {% endif %}
         </ul>
 
-        <a class="form-inline my-2 my-lg-0" href="#" style="margin-right: 10px;">
-            stylesheet
-        </a>
+        <ul class="navbar-nav">
+            {% if user.is_authenticated %}
+
+            {% else %}
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'users:login' %}">
+                    <i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i>Sign in
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="{% url 'users:user_create' %}" style="margin-right: 10px;">
+                    <i class="fas fa-user-plus" style="margin-right: 4px;"></i>Sign up
+                </a>
+            </li>
+            {% endif %}
+        </ul>
     </div><!-- /.navbar-collapse -->
 </nav>

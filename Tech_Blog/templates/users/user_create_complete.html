@@ -1,0 +1,13 @@
+{% extends 'users/users_base.html' %}
+
+{% block title %} Sign Up {% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 100px;">
+    <p>
+    本登録が完了しました。<br>
+    登録されたメールアドレスとパスワードでログインしてください。<br>
+    <a class="btn btn-primary btn-lg" href="{% url 'users:login' %}">ログイン</a>
+    </p>
+</div>
+{% endblock %}

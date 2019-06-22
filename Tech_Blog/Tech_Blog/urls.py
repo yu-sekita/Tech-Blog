@@ -20,9 +20,13 @@ from django.urls import include, path
 
 
 urlpatterns = [
+    # blogs
     path('admin/', admin.site.urls),
     path('', include('blogs.urls')),
     path('markdownx/', include('markdownx.urls')),
+
+    # users
+    path('', include('users.urls'))
 ]
 
 # 開発環境でのメディアファイルの配信設定

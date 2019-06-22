@@ -134,3 +134,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 # auth user
 AUTH_USER_MODEL = 'users.User'
+
+# login
+LOGIN_URL = 'users:login'
+LOGIN_REDIRECT_URL = 'users:profile'
+
+# display an email on the console
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
