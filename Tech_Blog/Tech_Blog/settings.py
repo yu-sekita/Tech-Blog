@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'blog',
+    'blogs',
+    'users',
     'bootstrap4',
     'markdownx',
 ]
@@ -130,3 +131,15 @@ STATICFILES_DIRS = (
 # media
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# auth user
+AUTH_USER_MODEL = 'users.User'
+
+# login
+LOGIN_URL = 'users:login'
+LOGIN_REDIRECT_URL = 'users:profile'
+LOGOUT_URL = 'users:logout'
+LOGOUT_REDIRECT_URL = 'blogs:index'
+
+# display an email on the console
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
