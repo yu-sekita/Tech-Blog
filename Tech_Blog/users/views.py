@@ -1,8 +1,5 @@
 from django.conf import settings
-from django.contrib.auth import (
-    login,
-    get_user_model,
-)
+from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import (
     LoginView,
@@ -15,10 +12,7 @@ from django.core.signing import (
     loads,
     SignatureExpired,
 )
-from django.http import (
-    Http404,
-    HttpResponseBadRequest,
-)
+from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.template.loader import get_template
 from django.views import generic
