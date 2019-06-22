@@ -40,4 +40,4 @@ class UserCreateFormTest(TestCase):
         }
         form = UserCreateForm(data=form_data)
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data[], form_data.get('email'))
+        self.assertEqual(form.cleaned_data['email'], form_data.get('email'))
