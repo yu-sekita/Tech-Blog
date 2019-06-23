@@ -92,18 +92,21 @@ class ArticleCreateViewTest(TestCase):
         """getリクエスト時のテスト"""
         response = self.client.get(reverse('blogs:create'))
         # ステータス200
-        self.assertEqual(response.status_code, 200)
-        # テンプレートcreate.html
-        self.assertTemplateUsed(response, 'blogs/create.html')
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトlogin
+        self.assertRedirects(response, '/login/?next=%2Fcreate%2F')
 
     def test_no_dada(self):
         """空のデータでpost時のテスト"""
         data = {}
         response = self.client.post(reverse('blogs:create'), data=data)
         # ステータス200
-        self.assertEqual(response.status_code, 200)
-        # テンプレートcreate.html
-        self.assertTemplateUsed(response, 'blogs/create.html')
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトlogin
+        self.assertRedirects(response, '/login/?next=%2Fcreate%2F')
+        # DBに登録されていないことの確認
+        articles = Article.objects.all()
+        self.assertEqual(articles.count(), 0)
 
     def test_with_dada(self):
         """データ有りpost時のテスト"""
@@ -111,7 +114,17 @@ class ArticleCreateViewTest(TestCase):
             'title': 'Test1',
             'text': 'Test1 text',
         }
+
+        # ユーザを準備
+        user = User.objects.create_user(
+            email='test@test.com',
+            password='test_password'
+        )
+        user.is_active = True
+        self.client.login(email='test@test.com', password='test_password')
+
         response = self.client.post(reverse('blogs:create'), data=data)
+
         # ステータス302
         self.assertEqual(response.status_code, 302)
 
