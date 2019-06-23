@@ -1,9 +1,43 @@
 import uuid
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
 from blogs.models import Article
+from blogs.views import _set_full_name
+
+
+User = get_user_model()
+
+
+class SetFullNameTest(TestCase):
+    """コンテキストにユーザーのフルネームを設定する関数のテスト"""
+    def test_no_user(self):
+        """ユーザーがいない時の確認"""
+        context = {}
+        _set_full_name(context, None)
+        self.assertEqual(context.get('name'), None)
+
+    def test_no_fullname(self):
+        """フルネームがないユーザーの確認"""
+        context = {}
+        user = User.objects.create_user(email="test@t.com", password="passwor")
+        user.is_active = True
+
+        _set_full_name(context, user)
+        self.assertEqual(context.get('name'), '')
+
+    def test_with_fullname(self):
+        """フルネームがあるユーザーの確認"""
+        context = {}
+        user = User.objects.create_user(email="test@t.com", password="passwor")
+        user.is_active = True
+        user.first_name = 'Potter'
+        user.last_name = 'Harry'
+
+        _set_full_name(context, user)
+        self.assertEqual(context.get('name'), user.get_full_name())
 
 
 class ArticleListViewTest(TestCase):
@@ -75,7 +109,7 @@ class ArticleCreateViewTest(TestCase):
         """データ有りpost時のテスト"""
         data = {
             'title': 'Test1',
-            'text': 'Test1 text'
+            'text': 'Test1 text',
         }
         response = self.client.post(reverse('blogs:create'), data=data)
         # ステータス302

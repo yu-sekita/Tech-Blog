@@ -19,25 +19,38 @@
 
         <ul class="navbar-nav">
             {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <a class="nav-link" href="{% url 'users:logout' %}">
-                        <i class="fas fa-sign-out-alt"></i>
-                        Sign out
+                <li class="nav-item dropdown">
+                    <a href="#" class="nav-link dropdown-toggle" role="button" data-toggle="dropdown">
+                        {% if name %}
+                            {{ name }}
+                        {% else %}
+                            {{ user.email }}
+                        {% endif %}
                     </a>
+                    <div class="dropdown-menu">
+                        <a class="dropdown-item" href="{% url 'users:profile' %}">
+                            <i class="fas fa-user"></i>
+                            Profile
+                        </a>
+                        <a class="dropdown-item" href="{% url 'users:logout' %}">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sign out
+                        </a>
+                    </div>
                 </li>
             {% else %}
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'users:login' %}">
-                    <i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i>
-                    Sign in
-                </a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'users:user_create' %}" style="margin-right: 10px;">
-                    <i class="fas fa-user-plus" style="margin-right: 4px;"></i>
-                    Sign up
-                </a>
-            </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:login' %}">
+                        <i class="fas fa-sign-in-alt" style="margin-right: 4px;"></i>
+                        Sign in
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'users:user_create' %}" style="margin-right: 10px;">
+                        <i class="fas fa-user-plus" style="margin-right: 4px;"></i>
+                        Sign up
+                    </a>
+                </li>
             {% endif %}
         </ul>
     </div><!-- /.navbar-collapse -->
