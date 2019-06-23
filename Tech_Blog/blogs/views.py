@@ -1,7 +1,14 @@
 from django.views import generic
 
+from django.contrib.auth.mixins import LoginRequiredMixin
 from blogs.forms import ArticleForm
 from blogs.models import Article
+
+
+def _set_full_name(context, user):
+    """ユーザーのフルネームがあればコンテキストに設定"""
+    if user and user.is_authenticated:
+        context['name'] = user.get_full_name()
 
 
 class ArticleListView(generic.ListView):
@@ -10,12 +17,28 @@ class ArticleListView(generic.ListView):
     context_object_name = 'articles'
     template_name = 'blogs/index.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        _set_full_name(context, self.request.user)
+        return context
 
-class ArticleCreateView(generic.CreateView):
+
+class ArticleCreateView(LoginRequiredMixin, generic.CreateView):
     """記事を追加するview"""
     model = Article
     form_class = ArticleForm
     template_name = 'blogs/create.html'
+
+    def form_valid(self, form):
+        """記事とユーザーを紐付ける"""
+        if self.request.user.is_authenticated:
+            form.instance.author = self.request.user
+        return super(generic.CreateView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        _set_full_name(context, self.request.user)
+        return context
 
 
 class ArticleDetailView(generic.DetailView):
@@ -23,3 +46,8 @@ class ArticleDetailView(generic.DetailView):
     model = Article
     context_object_name = 'article'
     template_name = 'blogs/detail.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        _set_full_name(context, self.request.user)
+        return context

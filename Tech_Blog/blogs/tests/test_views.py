@@ -1,9 +1,43 @@
 import uuid
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
 
 from blogs.models import Article
+from blogs.views import _set_full_name
+
+
+User = get_user_model()
+
+
+class SetFullNameTest(TestCase):
+    """コンテキストにユーザーのフルネームを設定する関数のテスト"""
+    def test_no_user(self):
+        """ユーザーがいない時の確認"""
+        context = {}
+        _set_full_name(context, None)
+        self.assertEqual(context.get('name'), None)
+
+    def test_no_fullname(self):
+        """フルネームがないユーザーの確認"""
+        context = {}
+        user = User.objects.create_user(email="test@t.com", password="passwor")
+        user.is_active = True
+
+        _set_full_name(context, user)
+        self.assertEqual(context.get('name'), '')
+
+    def test_with_fullname(self):
+        """フルネームがあるユーザーの確認"""
+        context = {}
+        user = User.objects.create_user(email="test@t.com", password="passwor")
+        user.is_active = True
+        user.first_name = 'Potter'
+        user.last_name = 'Harry'
+
+        _set_full_name(context, user)
+        self.assertEqual(context.get('name'), user.get_full_name())
 
 
 class ArticleListViewTest(TestCase):
@@ -58,26 +92,39 @@ class ArticleCreateViewTest(TestCase):
         """getリクエスト時のテスト"""
         response = self.client.get(reverse('blogs:create'))
         # ステータス200
-        self.assertEqual(response.status_code, 200)
-        # テンプレートcreate.html
-        self.assertTemplateUsed(response, 'blogs/create.html')
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトlogin
+        self.assertRedirects(response, '/login/?next=%2Fcreate%2F')
 
     def test_no_dada(self):
         """空のデータでpost時のテスト"""
         data = {}
         response = self.client.post(reverse('blogs:create'), data=data)
         # ステータス200
-        self.assertEqual(response.status_code, 200)
-        # テンプレートcreate.html
-        self.assertTemplateUsed(response, 'blogs/create.html')
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトlogin
+        self.assertRedirects(response, '/login/?next=%2Fcreate%2F')
+        # DBに登録されていないことの確認
+        articles = Article.objects.all()
+        self.assertEqual(articles.count(), 0)
 
     def test_with_dada(self):
         """データ有りpost時のテスト"""
         data = {
             'title': 'Test1',
-            'text': 'Test1 text'
+            'text': 'Test1 text',
         }
+
+        # ユーザを準備
+        user = User.objects.create_user(
+            email='test@test.com',
+            password='test_password'
+        )
+        user.is_active = True
+        self.client.login(email='test@test.com', password='test_password')
+
         response = self.client.post(reverse('blogs:create'), data=data)
+
         # ステータス302
         self.assertEqual(response.status_code, 302)
 

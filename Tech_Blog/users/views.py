@@ -30,6 +30,14 @@ class ProfileView(LoginRequiredMixin, generic.TemplateView):
     """ユーザのプロフィールを表示"""
     template_name = 'users/profile.html'
 
+    def get_context_data(self, **kwargs):
+        """フルネームがあればフルネームを表示"""
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        if user.is_authenticated:
+            context['name'] = user.get_full_name()
+        return context
+
 
 class Login(LoginView):
     """ログイン"""
