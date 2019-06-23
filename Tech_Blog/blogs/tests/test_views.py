@@ -90,20 +90,51 @@ class ArticleCreateViewTest(TestCase):
     """記事を追加するviewのテスト"""
     def test_get(self):
         """getリクエスト時のテスト"""
+        # ユーザを準備
+        user = User.objects.create_user(
+            email='test@test.com',
+            password='test_password'
+        )
+        user.is_active = True
+        self.client.login(email='test@test.com', password='test_password')
+
         response = self.client.get(reverse('blogs:create'))
         # ステータス200
-        self.assertEqual(response.status_code, 302)
-        # リダイレクトlogin
-        self.assertRedirects(response, '/login/?next=%2Fcreate%2F')
+        self.assertEqual(response.status_code, 200)
+        # テンプレートcreate.html
+        self.assertTemplateUsed(response, 'blogs/create.html')
 
     def test_no_dada(self):
         """空のデータでpost時のテスト"""
+        # ユーザを準備
+        user = User.objects.create_user(
+            email='test@test.com',
+            password='test_password'
+        )
+        user.is_active = True
+        self.client.login(email='test@test.com', password='test_password')
+
         data = {}
         response = self.client.post(reverse('blogs:create'), data=data)
         # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # テンプレートcreate.html
+        self.assertTemplateUsed(response, 'blogs/create.html')
+        # DBに登録されていないことの確認
+        articles = Article.objects.all()
+        self.assertEqual(articles.count(), 0)
+
+    def test_not_login(self):
+        """ユーザーがログインをしていない状態でpost"""
+        data = {
+            'title': 'Test1',
+            'text': 'Test1 text',
+        }
+        response = self.client.post(reverse('blogs:create'), data=data)
+        # ステータス302
         self.assertEqual(response.status_code, 302)
-        # リダイレクトlogin
-        self.assertRedirects(response, '/login/?next=%2Fcreate%2F')
+        # テンプレートcreate.html
+        self.assertRedirects(response, '/login/?next=/create/')
         # DBに登録されていないことの確認
         articles = Article.objects.all()
         self.assertEqual(articles.count(), 0)
