@@ -23,7 +23,7 @@ jobs:
             - image: circleci/python:3.7
         steps:
             - checkout
-            - run
+            - run:
                 name: Decode dotenv file
                 command: echo $ENV_FILE | base64 --decode > .env
             - run: |
