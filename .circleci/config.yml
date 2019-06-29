@@ -24,6 +24,8 @@ jobs:
         steps:
             - checkout
             - run: |
+                name: Decode dotenv file
+                command: echo $ENV_FILE | base64 --decode > .env
                 pipenv install django==2.2.1
                 cd Tech_Blog
                 pipenv run python manage.py migrate
