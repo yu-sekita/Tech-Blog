@@ -9,6 +9,7 @@ verify_ssl = true
 django = "*"
 django-bootstrap4 = "*"
 django-markdownx = "*"
+django-environ = "*"
 
 [requires]
 python_version = "3.7"
