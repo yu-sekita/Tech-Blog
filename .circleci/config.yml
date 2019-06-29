@@ -23,9 +23,10 @@ jobs:
             - image: circleci/python:3.7
         steps:
             - checkout
-            - run: |
+            - run
                 name: Decode dotenv file
                 command: echo $ENV_FILE | base64 --decode > .env
+            - run: |
                 pipenv install django==2.2.1
                 cd Tech_Blog
                 pipenv run python manage.py migrate
