@@ -142,7 +142,4 @@ LOGOUT_URL = 'users:logout'
 LOGOUT_REDIRECT_URL = 'blogs:index'
 
 # display an email on the console
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-# send mail
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_BACKEND = env('EMAIL_BACKEND')
