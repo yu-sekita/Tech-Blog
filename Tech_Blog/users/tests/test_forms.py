@@ -1,6 +1,8 @@
 from django.test import TestCase
 
-from users.forms import UserCreateForm
+from users.forms import (
+    UserCreateForm,
+)
 
 
 class UserCreateFormTest(TestCase):

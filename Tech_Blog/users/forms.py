@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import (
-    AuthenticationForm, UserCreationForm
+    AuthenticationForm, PasswordResetForm, SetPasswordForm, UserCreationForm,
 )
 
 
@@ -36,3 +36,21 @@ class UserCreateForm(UserCreationForm):
         email = self.cleaned_data['email']
         User.objects.filter(email=email, is_active=False).delete()
         return email
+
+
+class MyPasswordResetForm(PasswordResetForm):
+    """パスワード忘れた時用のフォーム"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
+
+
+class MySetPasswordForm(SetPasswordForm):
+    """パスワード忘れた時用のパスワード再設定用フォーム"""
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'

@@ -138,6 +138,7 @@ AUTH_USER_MODEL = 'users.User'
 # login
 LOGIN_URL = 'users:login'
 LOGIN_REDIRECT_URL = 'users:profile'
+# logout
 LOGOUT_URL = 'users:logout'
 LOGOUT_REDIRECT_URL = 'blogs:index'
 

@@ -17,6 +17,11 @@
                         {{ field.errors }}
                         <hr>
                     {% endfor %}
+                    <div class="text-right mb-3">
+                        <a class="" href="{% url 'users:password_reset' %}" style="margin-right: 10px;">
+                            Forgot password?
+                        </a>
+                    </div>
                     <button type="submit" class="btn btn-success btn-lg btn-block" >Sign in</button>
                     <input type="hidden" name="next" value="{{ next }}" />
                     {% csrf_token %}

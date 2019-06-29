@@ -1,7 +1,9 @@
-from django.core.mail import outbox
+from django.contrib.auth.tokens import default_token_generator
 from django.template.loader import get_template
 from django.test import TestCase
 from django.urls import reverse
+from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_encode
 
 
 class UserCreateViewTest(TestCase):
@@ -114,3 +116,129 @@ class UserCreateCompleteViewTest(TestCase):
         user_pk = loads(token)
         user = User.objects.get(pk=user_pk)
         self.assertTrue(user.is_active)
+
+
+class PasswordResetTest(TestCase):
+    """パスワード変更用viewのテスト"""
+    def test_get(self):
+        """getリクエスト"""
+        response = self.client.get(reverse('users:password_reset'))
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # テンプレートpassword_reset.html
+        self.assertTemplateUsed(response, 'users/password_reset.html')
+
+    def test_post(self):
+        """postリクエスト"""
+        data = {
+            'email': 'test@test.com',
+        }
+        response = self.client.post(reverse('users:password_reset'), data=data)
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトpasswort_reset_done
+        self.assertRedirects(response, '/password_reset/done/')
+
+
+class PasswordResetDoneTest(TestCase):
+    """パスワード変更用メール送信後viewのテスト"""
+    def test_get(self):
+        """getリクエスト"""
+        response = self.client.get(reverse('users:password_reset_done'))
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # テンプレートpassword_reset_done.html
+        self.assertTemplateUsed(response, 'users/password_reset_done.html')
+
+
+class PasswordResetConfirm(TestCase):
+    """パスワード再入力viewのテスト"""
+    def setUp(self):
+        """ユーザーを登録し、uidとtokenを準備"""
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        user = User.objects.create_user(
+            email='test@test.com',
+            password='test_password',
+        )
+        user.save()
+
+        self.uid = urlsafe_base64_encode(force_bytes(user.pk))
+        self.token = default_token_generator.make_token(user)
+
+    def test_get(self):
+        """getリクエスト"""
+        url = reverse(
+            'users:password_reset_confirm',
+            kwargs={
+                'uidb64': self.uid,
+                'token': self.token,
+            }
+        )
+        response = self.client.get(url)
+
+        # getリクエスト時、
+        # token部分をset-passwordに置き換えて
+        # リダイレクトされることの確認
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトpassword_reset_confirm.html
+        redirect_url = reverse(
+            'users:password_reset_confirm',
+            kwargs={
+                'uidb64': self.uid,
+                'token': 'set-password',
+            }
+        )
+        self.assertRedirects(
+            response,
+            redirect_url
+        )
+
+    def test_post(self):
+        """postリクエスト"""
+
+        # PasswordResetConfirmViewはget時にトークンをsessionに保存し、
+        # post時にsessionのトークンをチェックしているため
+        # 初めにgetリクエストを投げる
+        get_url = reverse(
+            'users:password_reset_confirm',
+            kwargs={
+                'uidb64': self.uid,
+                'token': self.token,
+            }
+        )
+        self.client.get(get_url)
+
+        # 次にpostリクエストを投げる
+        data = {
+            'new_password1': 'test_password2',
+            'new_password2': 'test_password2',
+        }
+        post_url = reverse(
+            'users:password_reset_confirm',
+            kwargs={
+                'uidb64': self.uid,
+                'token': 'set-password',
+            }
+        )
+        response = self.client.post(post_url, data=data)
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトpassword_reset_complete
+        self.assertRedirects(
+            response,
+            reverse('users:password_reset_complete')
+        )
+
+
+class PasswordResetCompleteTest(TestCase):
+    """パスワード再設定後viewのテスト"""
+
+    def test_get(self):
+        """getリクエストのテスト"""
+        response = self.client.get(reverse('users:password_reset_complete'))
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # テンプレートpassword_reset_complete.html
+        self.assertTemplateUsed(response, 'users/password_reset_complete.html')
