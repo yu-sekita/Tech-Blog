@@ -19,4 +19,22 @@
         {{ form.media }}
         <a class="btn btn-info" href="{% url 'blogs:index' %}">Back</a>
     </div>
+
+    <!-- highlight.js -->
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/highlight.min.js"></script>
+    <!-- プレビューにもシンタックスハイライトを適応 -->
+    <script>
+
+        const elements = document.getElementsByClassName('markdownx');
+        for (element of elements) {
+            element.addEventListener('markdownx.update', event => {
+                for (const block of document.querySelectorAll('pre code')) {
+                    hljs.highlightBlock(block);
+                }
+            });
+        }
+
+    </script>
 {% endblock %}
