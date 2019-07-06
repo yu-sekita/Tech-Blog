@@ -11,6 +11,16 @@ def _set_full_name(context, user):
         context['name'] = user.get_full_name()
 
 
+def _escape(un_escaped_text):
+    """エスケープ"""
+    un_escaped_text = un_escaped_text.replace('<', '&lt;')
+    un_escaped_text = un_escaped_text.replace('>', '&gt;')
+    un_escaped_text = un_escaped_text.replace('\"', '&quot;')
+    un_escaped_text = un_escaped_text.replace('\'', '&#39;')
+    escaped_text = un_escaped_text.replace('&', '&amp;')
+    return escaped_text
+
+
 class ArticleListView(generic.ListView):
     """記事の一覧を表示するview"""
     model = Article
@@ -32,6 +42,9 @@ class ArticleCreateView(LoginRequiredMixin, generic.CreateView):
     def form_valid(self, form):
         """記事とユーザーを紐付ける"""
         if self.request.user.is_authenticated:
+            # エスケープ
+            escaped_text = _escape(form.instance.text)
+            form.instance.text = escaped_text
             form.instance.author = self.request.user
         return super(generic.CreateView, self).form_valid(form)
 
