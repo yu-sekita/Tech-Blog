@@ -10,7 +10,7 @@ class AcceptationTest(TestCase):
 
         acceptation.accept('&lt;', '<')
         confirm_result = {'&lt;': '<'}
-        self.assertEquals(acceptation.accepts, confirm_result)
+        self.assertEquals(acceptation.accepted_texts, confirm_result)
 
     def test_unescape(self):
         """エスケープ無効に登録した文字列をアンエスケープするメソッドのテスト"""
