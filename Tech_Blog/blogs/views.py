@@ -1,6 +1,7 @@
 from django.views import generic
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from blogs.escape import escape_script
 from blogs.forms import ArticleForm
 from blogs.models import Article
 
@@ -16,6 +17,7 @@ class ArticleListView(generic.ListView):
     model = Article
     context_object_name = 'articles'
     template_name = 'blogs/index.html'
+    paginate_by = 9
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -32,6 +34,9 @@ class ArticleCreateView(LoginRequiredMixin, generic.CreateView):
     def form_valid(self, form):
         """記事とユーザーを紐付ける"""
         if self.request.user.is_authenticated:
+            # エスケープ
+            escaped_text = escape_script(form.instance.text)
+            form.instance.text = escaped_text
             form.instance.author = self.request.user
         return super(generic.CreateView, self).form_valid(form)
 
