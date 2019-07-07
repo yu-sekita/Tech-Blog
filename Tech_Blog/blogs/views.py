@@ -1,6 +1,7 @@
 from django.views import generic
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from blogs.escape import escape_script
 from blogs.forms import ArticleForm
 from blogs.models import Article
 
@@ -9,16 +10,6 @@ def _set_full_name(context, user):
     """ユーザーのフルネームがあればコンテキストに設定"""
     if user and user.is_authenticated:
         context['name'] = user.get_full_name()
-
-
-def _escape(un_escaped_text):
-    """エスケープ"""
-    un_escaped_text = un_escaped_text.replace('<', '&lt;')
-    un_escaped_text = un_escaped_text.replace('>', '&gt;')
-    un_escaped_text = un_escaped_text.replace('\"', '&quot;')
-    un_escaped_text = un_escaped_text.replace('\'', '&#39;')
-    escaped_text = un_escaped_text.replace('&', '&amp;')
-    return escaped_text
 
 
 class ArticleListView(generic.ListView):
@@ -43,7 +34,7 @@ class ArticleCreateView(LoginRequiredMixin, generic.CreateView):
         """記事とユーザーを紐付ける"""
         if self.request.user.is_authenticated:
             # エスケープ
-            escaped_text = _escape(form.instance.text)
+            escaped_text = escape_script(form.instance.text)
             form.instance.text = escaped_text
             form.instance.author = self.request.user
         return super(generic.CreateView, self).form_valid(form)
