@@ -11,7 +11,7 @@ class Acceptation:
         self._accepts = {}
 
     @property
-    def accepts(self):
+    def accepted_texts(self):
         return self._accepts
 
     def accept(self, key, value):
