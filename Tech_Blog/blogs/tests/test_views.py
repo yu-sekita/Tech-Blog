@@ -164,6 +164,36 @@ class ArticleCreateViewTest(TestCase):
         self.assertEqual(articles[0].title, 'Test1')
         self.assertEqual(articles.count(), 1)
 
+    def test_danger_data(self):
+        """textにscriptタグがある場合のテスト"""
+
+        test_text = '''test
+        <script> alert('test xss') </script>'''
+
+        confirm_text = '''test
+        &lt;script&gt; alert('test xss') &lt;/script&gt;'''
+
+        data = {
+            'title': 'Test1',
+            'text': test_text,
+        }
+
+        # ユーザを準備
+        user = User.objects.create_user(
+            email='test@test.com',
+            password='test_password'
+        )
+        user.is_active = True
+        self.client.login(email='test@test.com', password='test_password')
+
+        response = self.client.post(reverse('blogs:create'), data=data)
+
+        # textはエスケープされてDBに登録されていることの確認
+        articles = Article.objects.all()
+        self.assertEqual(articles[0].text, confirm_text)
+        # ユーザが紐づいていることの確認
+        self.assertEqual(articles[0].author.email, user.email)
+
 
 class ArticleDetailViewTest(TestCase):
     """記事の詳細を表示するviewのテスト"""
