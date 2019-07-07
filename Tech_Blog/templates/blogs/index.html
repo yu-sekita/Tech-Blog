@@ -3,11 +3,15 @@
 {% block title %}Tech Blog{% endblock %}
 
 {% block jumbo %}
-    {% include 'blogs/header/jumbotron.html' %}
+    {% include 'includes/jumbotron.html' %}
 {% endblock %}
 
 {% block content %}
-    <br>
+    <!-- paging -->
+    <div class="mt-3 mb-5">
+        {% include 'includes/page.html' %}
+    </div>
+    
     <div class="mx-auto" style="width: 1020px;">
         <div class="card-deck">
             {% for article in articles %}
@@ -20,6 +24,11 @@
             </div>
             {% endfor %}
         </div>
+    </div>
+
+    <!-- paging -->
+    <div class="mt-3 mb-5">
+        {% include 'includes/page.html' %}
     </div>
 
 {% endblock %}
