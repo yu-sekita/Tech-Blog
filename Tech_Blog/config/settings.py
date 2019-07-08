@@ -15,23 +15,11 @@ import os
 import environ
 
 
-env = environ.Env(DEBUG=(bool, False),)
-env.read_env('.env')
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
-
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
-
 
 # Application definition
 
@@ -80,15 +68,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'config.wsgi.application'
-
-
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-
-DATABASES = {
-    'default': env.db()
-}
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -150,6 +129,24 @@ LOGOUT_REDIRECT_URL = 'blogs:index'
 
 # display an email
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+env = environ.Env(DEBUG=(bool, False),)
+env.read_env('.env')
+
+# Database
+# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
+DATABASES = {
+    'default': env.db()
+}
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env('SECRET_KEY')
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env('DEBUG')
+
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
 try:
     from .local_settings import *
