@@ -149,7 +149,7 @@ LOGOUT_URL = 'users:logout'
 LOGOUT_REDIRECT_URL = 'blogs:index'
 
 # display an email
-EMAIL_BACKEND = env('EMAIL_BACKEND')
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 try:
     from .local_settings import *
@@ -165,3 +165,4 @@ if not DEBUG:
     EMAIL_HOST_USER = env('EMAIL_HOST_USER')
     EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
     EMAIL_USE_TLS = env('EMAIL_USE_TLS')
+    EMAIL_BACKEND = env('EMAIL_BACKEND')
