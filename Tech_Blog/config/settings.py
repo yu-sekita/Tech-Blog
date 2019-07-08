@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+
 import environ
+
 
 env = environ.Env(DEBUG=(bool, False),)
 env.read_env('.env')
@@ -26,7 +28,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = False
 
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
@@ -146,5 +148,20 @@ LOGIN_REDIRECT_URL = 'users:profile'
 LOGOUT_URL = 'users:logout'
 LOGOUT_REDIRECT_URL = 'blogs:index'
 
-# display an email on the console
+# display an email
 EMAIL_BACKEND = env('EMAIL_BACKEND')
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
+
+if not DEBUG:
+    import django_heroku
+    django_heroku.settings(locals())
+
+    EMAIL_HOST = env('EMAIL_HOST')
+    EMAIL_PORT = env('EMAIL_PORT')
+    EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+    EMAIL_USE_TLS = env('EMAIL_USE_TLS')
