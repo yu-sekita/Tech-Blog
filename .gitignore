@@ -2,7 +2,10 @@ db.sqlite3
 *.log
 *.pot
 *.pyc
-__pycache__/
+*.swp
+__pycache__
+.DS_Store
 
+local_settings.py
 .env
 .env-prod

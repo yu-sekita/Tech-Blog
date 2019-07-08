@@ -1,0 +1,1 @@
+web: gunicorn Tech-Blog.wsgi
