@@ -1,1 +1,1 @@
-web: gunicorn Tech_Blog.config.wsgi
+web: gunicorn config.wsgi
