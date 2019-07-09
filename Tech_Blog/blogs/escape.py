@@ -20,7 +20,7 @@ class Acceptation:
 
     def unescape(self, text):
         """エスケープ無効に登録した文字列をアンエスケープする"""
-        for escaped_text, accepted_text in self._accepts.itmes():
+        for escaped_text, accepted_text in self._accepts.items():
             text = text.replace(escaped_text, accepted_text)
         return text
 
