@@ -158,6 +158,8 @@ if not DEBUG:
     django_heroku.settings(locals())
     del DATABASES['default']['OPTIONS']['sslmode']
 
+    ALLOWED_HOSTS += env('ALLOWED_HOSTS')
+
     EMAIL_HOST = env('EMAIL_HOST')
     EMAIL_PORT = env('EMAIL_PORT')
     EMAIL_HOST_USER = env('EMAIL_HOST_USER')
