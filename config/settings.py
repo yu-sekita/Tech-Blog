@@ -153,7 +153,7 @@ try:
 except ImportError:
     pass
 
-if DEBUG:
+if not DEBUG:
     import django_heroku
     django_heroku.settings(locals())
     del DATABASES['default']['OPTIONS']['sslmode']
