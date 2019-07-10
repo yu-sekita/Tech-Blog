@@ -7,7 +7,7 @@ jobs:
             - checkout
             - run: |
                 pipenv install flake8
-                cd Tech_Blog/blogs
+                cd blogs
                 pipenv run flake8 forms.py
                 pipenv run flake8 models.py
                 pipenv run flake8 urls.py
@@ -26,7 +26,6 @@ jobs:
             - run: echo $ENV_FILE | base64 -di > .env
             - run: |
                 pipenv install django==2.2.1
-                cd Tech_Blog
                 pipenv run python manage.py migrate
                 pipenv run python manage.py test
 
