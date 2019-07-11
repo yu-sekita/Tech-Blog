@@ -38,7 +38,6 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -135,26 +134,22 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 env = environ.Env(DEBUG=(bool, False),)
 env.read_env('.env')
 
-# Database
-# https://docs.djangoproject.com/en/2.2/ref/settings/#databases
-DATABASES = {
-    'default': env.db()
-}
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
 
-try:
-    from .local_settings import *
-except ImportError:
-    pass
+if DEBUG:
+    # Database
+    # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
+    DATABASES = {
+        'default': env.db()
+    }
 
-if not DEBUG:
+    ALLOWED_HOSTS = ['localhost']
+else:
     import django_heroku
     django_heroku.settings(locals())
     del DATABASES['default']['OPTIONS']['sslmode']
