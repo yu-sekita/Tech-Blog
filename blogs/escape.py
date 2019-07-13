@@ -1,6 +1,6 @@
 
 
-class Acceptation:
+class Accepter:
     """エスケープしない文字列"""
     def __init__(self):
         """Constructor.エスケープしない文字列を保存する辞書を作成
@@ -25,7 +25,7 @@ class Acceptation:
         return text
 
 
-class AcceptationHtml(Acceptation):
+class HtmlAccepter(Accepter):
     """エスケープしないHtml"""
     def __init__(self):
         super().__init__()
@@ -68,7 +68,7 @@ class AcceptationHtml(Acceptation):
 
 def unescape_html(escaped_text):
     """無害なhtmlをアンエスケープする"""
-    acceptation = AcceptationHtml()
+    acceptation = HtmlAccepter()
     accept_texts = [
         'b', 'blockquote', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
         'li', 'ol', 'ol start="42"', 'p', 'pre', 'sub', 'sup', 'strong',
