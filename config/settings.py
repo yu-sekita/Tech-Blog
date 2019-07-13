@@ -11,9 +11,15 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import logging
 
 import environ
 
+
+logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
+                    datefmt=' %m/%d/%y %H:%M:%S')
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -108,6 +114,10 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, "static"),
 )
+logger.debug(f"BASE_DIR: {BASE_DIR}")
+logger.debug(f"static_root: {STATIC_ROOT}")
+logger.debug(f"staticfiles_dirs: {STATICFILES_DIRS}")
+
 
 # markdown
 MARKDOWNX_MARKDOWN_EXTENSIONS = [
