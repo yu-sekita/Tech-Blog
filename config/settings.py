@@ -16,6 +16,12 @@ import logging
 import environ
 
 
+env = environ.Env(DEBUG=(bool, False),)
+env.read_env('.env')
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env('SECRET_KEY')
+
 logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s',
                     datefmt=' %m/%d/%y %H:%M:%S')
 logger = logging.getLogger(__name__)
@@ -141,12 +147,6 @@ LOGOUT_REDIRECT_URL = 'blogs:index'
 # display an email
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-
-env = environ.Env(DEBUG=(bool, False),)
-env.read_env('.env')
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
