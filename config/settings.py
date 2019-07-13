@@ -164,6 +164,8 @@ else:
     django_heroku.settings(locals())
     del DATABASES['default']['OPTIONS']['sslmode']
 
+    del STATICFILES_STORAGE
+
     ALLOWED_HOSTS.append(env('ALLOWED_HOSTS'))
 
     EMAIL_HOST = env('EMAIL_HOST')
