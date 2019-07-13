@@ -1,37 +1,37 @@
 from django.test import TestCase
 
 
-class AcceptationTest(TestCase):
+class AccepterTest(TestCase):
     """アンエスケープしたい文字列のテスト"""
     def test_accept(self):
         """エスケープしない文字列を保存するメソッドのテスト"""
-        from blogs.escape import Acceptation
-        acceptation = Acceptation()
+        from blogs.escape import Accepter
+        accepter = Accepter()
 
-        acceptation.accept('&lt;', '<')
+        accepter.accept('&lt;', '<')
         confirm_result = {'&lt;': '<'}
-        self.assertEquals(acceptation.accepted_texts, confirm_result)
+        self.assertEquals(accepter.accepted_texts, confirm_result)
 
     def test_unescape(self):
         """エスケープ無効に登録した文字列をアンエスケープするメソッドのテスト"""
-        from blogs.escape import Acceptation
-        acceptation = Acceptation()
+        from blogs.escape import Accepter
+        accepter = Accepter()
 
         test_text = '''以下がアンエスケープされることをテストします。
         &lt;br>
         '''
-        acceptation.accept('&lt;', '<')
-        result_text = acceptation.unescape(test_text)
+        accepter.accept('&lt;', '<')
+        result_text = accepter.unescape(test_text)
         confirm_text = test_text.replace('&lt;', '<')
         self.assertEquals(result_text, confirm_text)
 
 
-class AcceptationHtmlTest(TestCase):
+class HtmlAccepterTest(TestCase):
     """アンエスケープしたいHtmlのテスト"""
     def test_accepts_no_text(self):
         """str型でない引数を渡した場合"""
-        from blogs.escape import AcceptationHtml
-        acceptation = AcceptationHtml()
+        from blogs.escape import HtmlAccepter
+        acceptation = HtmlAccepter()
 
         text = 100
         with self.assertRaises(ValueError) as error:
@@ -41,8 +41,8 @@ class AcceptationHtmlTest(TestCase):
 
     def test_accepts_one_data(self):
         """1つの引数を渡した場合"""
-        from blogs.escape import AcceptationHtml
-        acceptation = AcceptationHtml()
+        from blogs.escape import HtmlAccepter
+        acceptation = HtmlAccepter()
 
         text = 'br'
         result = acceptation.accepts(text)
@@ -54,8 +54,8 @@ class AcceptationHtmlTest(TestCase):
 
     def test_accepts_list_data(self):
         """listの引数を渡した場合"""
-        from blogs.escape import AcceptationHtml
-        acceptation = AcceptationHtml()
+        from blogs.escape import HtmlAccepter
+        acceptation = HtmlAccepter()
 
         text = ['br', 'li', 'a']
         result = acceptation.accepts(text)
@@ -71,8 +71,8 @@ class AcceptationHtmlTest(TestCase):
 
     def test_accepts_args_data(self):
         """引数を可変長で渡した場合"""
-        from blogs.escape import AcceptationHtml
-        acceptation = AcceptationHtml()
+        from blogs.escape import HtmlAccepter
+        acceptation = HtmlAccepter()
 
         text = ['br', 'li', 'a']
         confirm_result = {
@@ -88,9 +88,9 @@ class AcceptationHtmlTest(TestCase):
 
     def test_unescape_filter(self):
         """エスケープを無効にした文字列をアンエスケープするテスト"""
-        from blogs.escape import AcceptationHtml
+        from blogs.escape import HtmlAccepter
         from blogs.escape import escape_tag
-        acceptation = AcceptationHtml()
+        acceptation = HtmlAccepter()
 
         test_text = '''これはテストになります。<br>
         以下の無害なhtmlはエスケープしません。
