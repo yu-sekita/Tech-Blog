@@ -6,6 +6,8 @@ db.sqlite3
 __pycache__
 .DS_Store
 
+media/markdownx
+
 local_settings.py
 .env
 .env-prod
