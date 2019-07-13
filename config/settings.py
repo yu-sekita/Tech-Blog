@@ -117,12 +117,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATIC_URL = '/static/'
-STATICFILES_DIRS = (
-    os.path.join(BASE_DIR, "static"),
-)
 logger.debug(f"BASE_DIR: {BASE_DIR}")
 logger.debug(f"static_root: {STATIC_ROOT}")
-logger.debug(f"staticfiles_dirs: {STATICFILES_DIRS}")
 
 
 # markdown
@@ -157,6 +153,10 @@ if DEBUG:
     DATABASES = {
         'default': env.db()
     }
+
+    STATICFILES_DIRS = (
+        os.path.join(BASE_DIR, "static"),
+    )
 
     ALLOWED_HOSTS = ['localhost']
 else:
