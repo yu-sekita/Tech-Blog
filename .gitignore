@@ -6,6 +6,7 @@ db.sqlite3
 __pycache__
 .DS_Store
 
+staticfiles
 local_settings.py
 .env
 .env-prod
