@@ -164,7 +164,7 @@ else:
     django_heroku.settings(locals())
     del DATABASES['default']['OPTIONS']['sslmode']
 
-    STATICFILES_STORAGE = = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
     ALLOWED_HOSTS.append(env('ALLOWED_HOSTS'))
 
