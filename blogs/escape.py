@@ -1,37 +1,50 @@
 
 
-class Accepter:
-    """エスケープしない文字列"""
+class Translater:
+    """文字の置換を行うクラス
+
+    Attributes:
+        permutation_group: 置換前と置換後を保存するためのdict型変数
+
+    Methods:
+        group: permutation_groupを返す
+        setdefault: permutation_groupに保存
+        translate: permutation_groupに保存されている文字を変換
+    """
     def __init__(self):
         """Constructor.エスケープしない文字列を保存する辞書を作成
 
         accepts: エスケープされた文字がkeyで、アンエスケープしたい文字がvalue
-            ex) accepts = { '&lt;': '<' }
+                 ex) accepts = { '&lt;': '<' }
         """
-        self._accepts = {}
+        self._permutation_group = {}
 
     @property
-    def accepted_texts(self):
-        return self._accepts
+    def group(self):
+        return self._permutation_group
 
-    def accept(self, key, value):
-        """エスケープしない文字列を保存する"""
-        self._accepts.setdefault(key, value)
+    def setgroup(self, key, value):
+        """置換前と置換後を保存する"""
+        self._permutation_group.setdefault(key, value)
 
-    def unescape(self, text):
-        """エスケープ無効に登録した文字列をアンエスケープする"""
-        for escaped_text, accepted_text in self._accepts.items():
+    def translate(self, text):
+        """置換を行う"""
+        for escaped_text, accepted_text in self._permutation_group.items():
             text = text.replace(escaped_text, accepted_text)
         return text
 
 
-class HtmlAccepter(Accepter):
-    """エスケープしないHtml"""
+class HtmlAccepter(Translater):
+    """HTMLタグのアンエスケープを行うクラス"""
     def __init__(self):
         super().__init__()
 
     def accepts(self, *args):
-        """エスケープを無効したいタグを登録"""
+        """エスケープを無効したいタグを登録
+
+        引数にstr, list, tupleを受け取って、
+        その数だけタグを生成し、permutation_groupに保存する
+        """
         if not isinstance(args, tuple):
             raise ValueError('input string type')
 
@@ -52,43 +65,32 @@ class HtmlAccepter(Accepter):
             # 開始タグを作成し登録する
             escaped_start_tag = '&lt;' + accept_text + '&gt;'
             unescaped_start_tag = '<' + accept_text + '>'
-            self.accept(escaped_start_tag, unescaped_start_tag)
+            self.setgroup(escaped_start_tag, unescaped_start_tag)
             # 終了タグを作成し登録する
             escaped_end_tag = '&lt;' + '/' + accept_text + '&gt;'
             unescaped_end_tag = '<' + '/' + accept_text + '>'
-            self.accept(escaped_end_tag, unescaped_end_tag)
+            self.setgroup(escaped_end_tag, unescaped_end_tag)
 
-        return self._accepts
+        return self._permutation_group
 
     def unescape_html_filter(self, escaped_text):
         """エスケープを無効にしたhtmlタグをアンエスケープする"""
-        unescaped_text = self.unescape(escaped_text)
+        unescaped_text = self.translate(escaped_text)
         return unescaped_text
 
 
-def unescape_html(escaped_text):
-    """無害なhtmlをアンエスケープする"""
-    acceptation = HtmlAccepter()
-    accept_texts = [
-        'b', 'blockquote', 'code', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-        'li', 'ol', 'ol start="42"', 'p', 'pre', 'sub', 'sup', 'strong',
-        'strike', 'ul', 'br', 'hr',
-    ]
+def escape_tag(un_escaped_text, *accept_texts):
+    """タグをエスケープする関数
 
-    acceptation.accepts(accept_texts)
-    unescaped_text = acceptation.unescape_html_filter(escaped_text)
-    return unescaped_text
+    エスケープしないタグがあれば無効とする
 
-
-def escape_tag(un_escaped_text):
-    """タグをエスケープ"""
+    Args:
+        accept_texts: エスケープしないタグ
+    """
     un_escaped_text = un_escaped_text.replace('<', '&lt;')
     escaped_text = un_escaped_text.replace('>', '&gt;')
+    if accept_texts:
+        accepter = HtmlAccepter()
+        accepter.accepts(*accept_texts)
+        escaped_text = accepter.unescape_html_filter(escaped_text)
     return escaped_text
-
-
-def escape_script(text):
-    """scriptタグをエスケープ"""
-    escaped_text = escape_tag(text)
-    unescaped_text = unescape_html(escaped_text)
-    return unescaped_text

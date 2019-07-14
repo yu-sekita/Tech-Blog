@@ -6,8 +6,8 @@ db.sqlite3
 __pycache__
 .DS_Store
 
+Pipfile.lock
 media/markdownx
-
 local_settings.py
 .env
 .env-prod
