@@ -34,17 +34,19 @@ section.section1 {
     background-color: rgba(0,0,0,0.0);
 }
 
-/*ウィンドウ幅が0～479pxの場合にcssを適用*/
+/*ウィンドウ幅が0～749pxの場合にcssを適用*/
 @media screen and (min-width: 0px) {
-    width: auto;
+    .card-deck {
+        width: auto;
+    }
 }
-/*ウィンドウ幅が0～479pxの場合にcssを適用*/
+/*ウィンドウ幅が750～1199pxの場合にcssを適用*/
 @media screen and (min-width: 750px) {
     .card-deck {
         width: 700px;
     }
 }
-/*ウィンドウ幅が0～479pxの場合にcssを適用*/
+/*ウィンドウ幅が1200px～の場合にcssを適用*/
 @media screen and (min-width: 1200px) {
     .card-deck {
         width: 1050px;
