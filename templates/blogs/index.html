@@ -7,30 +7,37 @@
 {% endblock %}
 
 {% block content %}
-    <!-- paging -->
-    <div class="mt-3 mb-5">
-        {% include 'includes/page.html' %}
-    </div>
 
-    <div class="mx-auto" style="width: 1020px;">
-        <div class="card-deck">
-            {% for article in articles %}
-            <div class="filter">
-                <a class="card-deck border-secondary shadow" style="margin: 15px; width: 20rem; height: 15rem;" href="{% url 'blogs:detail' article.pk %}">
-                    <div class="card-body text-secondary">
-                        <h4 class="card-title">{{ article.title }}</h4>
-                    </div>
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-
-    <!-- paging -->
-    {% if page_obj|length >= 9 %}
-        <div class="mt-3 mb-5">
+    <section class="section1">
+        <!-- paging -->
+        <div class="mb-5">
             {% include 'includes/page.html' %}
         </div>
-    {% endif %}
+
+        <div class="mx-auto" style="width: 1020px;">
+            <div class="card-deck">
+                {% for article in articles %}
+                <div class="filter">
+                    <a class="card-deck border-secondary shadow" style="margin: 15px; width: 20rem; height: 15rem;" href="{% url 'blogs:detail' article.pk %}">
+                        <div class="card-body text-secondary">
+                            <h4 class="card-title">{{ article.title }}</h4>
+                        </div>
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- paging -->
+        {% if page_obj|length >= 9 %}
+            <div class="mt-5">
+                {% include 'includes/page.html' %}
+            </div>
+        {% endif %}
+
+    </section>
+
+    <!-- footer -->
+    {% include 'includes/footer.html' %}
 
 {% endblock %}

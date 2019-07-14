@@ -1,4 +1,10 @@
 
+section.section1 {
+    background: #f8f8f8;
+    margin: 0px 0px 0px 0px;
+    padding: 100px 0px 100px 0px;
+}
+
 .filter a{
     display:block;
     position: relative;
