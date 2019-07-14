@@ -1,27 +1,27 @@
 from django.test import TestCase
 
 
-class AccepterTest(TestCase):
-    """アンエスケープしたい文字列のテスト"""
-    def test_accept(self):
+class TranslaterTest(TestCase):
+    """文字の置換を行うクラスのテスト"""
+    def test_setgroup(self):
         """エスケープしない文字列を保存するメソッドのテスト"""
-        from blogs.escape import Accepter
-        accepter = Accepter()
+        from blogs.escape import Translater
+        translater = Translater()
 
-        accepter.accept('&lt;', '<')
+        translater.setgroup('&lt;', '<')
         confirm_result = {'&lt;': '<'}
-        self.assertEquals(accepter.accepted_texts, confirm_result)
+        self.assertEquals(translater.group, confirm_result)
 
-    def test_unescape(self):
-        """エスケープ無効に登録した文字列をアンエスケープするメソッドのテスト"""
-        from blogs.escape import Accepter
-        accepter = Accepter()
+    def test_translate(self):
+        """置換群に登録した文字列を置換するメソッドのテスト"""
+        from blogs.escape import Translater
+        translater = Translater()
 
         test_text = '''以下がアンエスケープされることをテストします。
         &lt;br>
         '''
-        accepter.accept('&lt;', '<')
-        result_text = accepter.unescape(test_text)
+        translater.setgroup('&lt;', '<')
+        result_text = translater.translate(test_text)
         confirm_text = test_text.replace('&lt;', '<')
         self.assertEquals(result_text, confirm_text)
 
@@ -168,74 +168,59 @@ class EscapeTagTest(TestCase):
         '''
         self.assertEquals(result_text, confirm_text)
 
-
-class UnescapeHtmlTest(TestCase):
-    """無害なhtmlをアンエスケープする関数のテスト"""
-    def setUp(self):
-        self.test_text = '''以下のhtmlタグがアンエスケープされることをテストします。
-        &lt;b&gt;, &lt;blockquote&gt;, &lt;code&gt;, &lt;em&gt;, &lt;h1&gt;,
-        &lt;h2&gt;, &lt;h3&gt;, &lt;h4&gt;, &lt;h5&gt;, &lt;h6&gt;,
-        &lt;li&gt;, &lt;ol&gt;, &lt;ol start="42"&gt;, &lt;p&gt;, &lt;pre&gt;,
-        &lt;sub&gt;, &lt;sup&gt;, &lt;strong&gt;,
-        &lt;strike&gt;, &lt;ul&gt;, &lt;br&gt;, &lt;hr&gt;
-
+    def test_with_accete_text(self):
+        """エスケープしないタグを文字列で渡した場合のテスト"""
+        from blogs.escape import escape_tag
+        test_text = '''以下の文字のうちタグになるものを全てエスケープされます。
+        テスト <br>
+        <ul>
+            <li>test1</li>
+        </ul>
         '''
-
-        self.confirm_text = '''以下のhtmlタグがアンエスケープされることをテストします。
-        <b>, <blockquote>, <code>, <em>, <h1>,
-        <h2>, <h3>, <h4>, <h5>, <h6>,
-        <li>, <ol>, <ol start="42">, <p>, <pre>,
-        <sub>, <sup>, <strong>,
-        <strike>, <ul>, <br>, <hr>
-
+        confirm_text = '''以下の文字のうちタグになるものを全てエスケープされます。
+        テスト &lt;br&gt;
+        <ul>
+            &lt;li&gt;test1&lt;/li&gt;
+        </ul>
         '''
+        accept_texts = 'ul'
+        result_text = escape_tag(test_text, accept_texts)
+        self.assertEquals(result_text, confirm_text)
 
-    def test_unescape_html(self):
-        """アンエスケープされることの確認"""
-        from blogs.escape import unescape_html
-
-        result_text = unescape_html(self.test_text)
-        self.assertEquals(result_text, self.confirm_text)
-
-    def test_escape_html(self):
-        """scriptタグはエスケープされていることの確認"""
-        from blogs.escape import unescape_html
-
-        self.test_text += '''\n <script>\nalert('test xss')\n</script>'''
-        self.confirm_text += '''\n <script>\nalert('test xss')\n</script>'''
-
-        result_text = unescape_html(self.test_text)
-        self.assertEquals(result_text, self.confirm_text)
-
-
-class EscapeScript(TestCase):
-    """scriptタグをエスケープする関数のテスト"""
-    def setUp(self):
-        self.test_text = '''以下のhtmlタグがアンエスケープされることをテストします。
-        <b>, <blockquote>, <code>, <em>, <h1>,
-        <h2>, <h3>, <h4>, <h5>, <h6>,
-        <li>, <ol>, <ol start="42">, <p>, <pre>,
-        <sub>, <sup>, <strong>,
-        <strike>, <ul>, <br>, <hr>
-
-        <script> alert('test xss') </script>
-
+    def test_with_accete_list(self):
+        """エスケープしないタグをリストで渡した場合のテスト"""
+        from blogs.escape import escape_tag
+        test_text = '''以下の文字のうちタグになるものを全てエスケープされます。
+        テスト <br>
+        <ul>
+            <li>test1</li>
+        </ul>
         '''
-
-        self.confirm_text = '''以下のhtmlタグがアンエスケープされることをテストします。
-        <b>, <blockquote>, <code>, <em>, <h1>,
-        <h2>, <h3>, <h4>, <h5>, <h6>,
-        <li>, <ol>, <ol start="42">, <p>, <pre>,
-        <sub>, <sup>, <strong>,
-        <strike>, <ul>, <br>, <hr>
-
-        &lt;script&gt; alert('test xss') &lt;/script&gt;
-
+        confirm_text = '''以下の文字のうちタグになるものを全てエスケープされます。
+        テスト <br>
+        <ul>
+            &lt;li&gt;test1&lt;/li&gt;
+        </ul>
         '''
+        accept_texts = ['br', 'ul']
+        result_text = escape_tag(test_text, accept_texts)
+        self.assertEquals(result_text, confirm_text)
 
-    def test_escape_script(self):
-        """scriptタグのみエスケープされるテスト"""
-        from blogs.escape import escape_script
-
-        result_text = escape_script(self.test_text)
-        self.assertEquals(result_text, self.confirm_text)
+    def test_with_accete_args(self):
+        """エスケープしないタグを可変長引数で渡した場合のテスト"""
+        from blogs.escape import escape_tag
+        test_text = '''以下の文字のうちタグになるものを全てエスケープされます。
+        テスト <br>
+        <ul>
+            <li>test1</li>
+        </ul>
+        '''
+        confirm_text = '''以下の文字のうちタグになるものを全てエスケープされます。
+        テスト <br>
+        <ul>
+            &lt;li&gt;test1&lt;/li&gt;
+        </ul>
+        '''
+        accept_texts = ['br', 'ul']
+        result_text = escape_tag(test_text, *accept_texts)
+        self.assertEquals(result_text, confirm_text)
