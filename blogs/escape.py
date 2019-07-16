@@ -8,14 +8,14 @@ class Translater:
 
     Methods:
         group: permutation_groupを返す
-        setdefault: permutation_groupに保存
+        setgroup: permutation_groupに保存
         translate: permutation_groupに保存されている文字を変換
     """
     def __init__(self):
-        """Constructor.エスケープしない文字列を保存する辞書を作成
+        """Constructor.置換前と置換後を保存するためのdictを作成
 
-        accepts: エスケープされた文字がkeyで、アンエスケープしたい文字がvalue
-                 ex) accepts = { '&lt;': '<' }
+        permutation_group: 置換前がkeyで、置換後がvalue
+                 ex) permutation_group = { '&lt;': '<' }
         """
         self._permutation_group = {}
 
