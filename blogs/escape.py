@@ -87,8 +87,10 @@ def escape_tag(un_escaped_text, *accept_texts):
     Args:
         accept_texts: エスケープしないタグ
     """
-    un_escaped_text = un_escaped_text.replace('<', '&lt;')
-    escaped_text = un_escaped_text.replace('>', '&gt;')
+    escaped_text = un_escaped_text.translate(str.maketrans({
+        '<': '&lt;',
+        '>': '&gt;'
+    }))
     if accept_texts:
         accepter = HtmlAccepter()
         accepter.accepts(*accept_texts)
