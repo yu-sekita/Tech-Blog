@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from blogs.escape import escape_tag
 from blogs.forms import ArticleForm
 from blogs.models import Article
+from users.models import Profile
 
 
 ACCEPT_TAGS = [
@@ -15,8 +16,9 @@ ACCEPT_TAGS = [
 
 def _set_full_name(context, user):
     """ユーザーのフルネームがあればコンテキストに設定"""
-    if user and user.is_authenticated:
-        context['name'] = user.get_full_name()
+    profile = Profile.objects.get(pk=user.pk)
+    name = profile.get_full_name()
+    context['name'] = name if name is not None else ''
 
 
 class ArticleListView(generic.ListView):
