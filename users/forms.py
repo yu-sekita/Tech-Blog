@@ -4,7 +4,7 @@ from django.contrib.auth.forms import (
     AuthenticationForm, PasswordResetForm, SetPasswordForm, UserCreationForm,
 )
 
-from users.models import Profile
+# from users.models import Profile
 
 
 User = get_user_model()
