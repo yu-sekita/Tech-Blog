@@ -28,7 +28,7 @@
                         {% endif %}
                     </a>
                     <div class="dropdown-menu">
-                        <a class="dropdown-item" href="{% url 'users:profile' %}">
+                        <a class="dropdown-item" href="{% url 'users:profile' user.email %}">
                             <i class="fas fa-user"></i>
                             Profile
                         </a>

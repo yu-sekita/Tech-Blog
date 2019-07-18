@@ -10,29 +10,29 @@ from django.core.signing import (
     BadSignature, dumps, loads, SignatureExpired,
 )
 from django.http import HttpResponseBadRequest
-from django.shortcuts import redirect
+from django.shortcuts import redirect, resolve_url
 from django.template.loader import get_template
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views import generic
 
 from users.forms import (
     LoginForm, MyPasswordResetForm, MySetPasswordForm, UserCreateForm,
 )
+from users.models import Profile
 
 
 User = get_user_model()
 
 
-class ProfileView(LoginRequiredMixin, generic.TemplateView):
+class ProfileView(generic.TemplateView):
     """ユーザのプロフィールを表示"""
     template_name = 'users/profile.html'
 
     def get_context_data(self, **kwargs):
-        """フルネームがあればフルネームを表示"""
+        """プロフィールを表示"""
         context = super().get_context_data(**kwargs)
-        user = self.request.user
-        if user.is_authenticated:
-            context['name'] = user.get_full_name()
+        profile = Profile.objects.get(name=kwargs['name'])
+        context['profile'] = profile
         return context
 
 
@@ -40,6 +40,18 @@ class Login(LoginView):
     """ログイン"""
     form_class = LoginForm
     template_name = 'users/login.html'
+
+    def get_success_url(self):
+        next_url = self.get_redirect_url()
+        if next_url:
+            return '%s' % (next_url)
+        else:
+            user = self.request.user
+            profile = Profile.objects.get(pk=user.pk)
+            redirect_url = reverse(
+                'users:profile',
+                kwargs={'name': profile.name})
+            return redirect_url
 
 
 class Logout(LogoutView):
@@ -117,6 +129,13 @@ class UserCreateCompleteView(generic.TemplateView):
                     # 問題がなければ本登録
                     user.is_active = True
                     user.save()
+
+                    # プロフィールもDBに保存
+                    profile = Profile.objects.create(
+                        user=user,
+                        name=user.email
+                    )
+                    profile.save()
                     return super().get(request, **kwargs)
 
         return HttpResponseBadRequest()
