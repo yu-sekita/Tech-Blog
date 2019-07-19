@@ -16,9 +16,14 @@ ACCEPT_TAGS = [
 
 def _set_full_name(context, user):
     """ユーザーのフルネームがあればコンテキストに設定"""
-    profile = Profile.objects.get(pk=user.pk)
-    name = profile.get_full_name()
-    context['name'] = name if name is not None else ''
+    if user is None:
+        context['name'] = ''
+        return context
+    if user.is_authenticated:
+        profile = Profile.objects.get(user=user)
+        name = profile.user_name
+        context['name'] = name if name is not None else ''
+        return context
 
 
 class ArticleListView(generic.ListView):

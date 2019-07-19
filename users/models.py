@@ -99,8 +99,7 @@ class Profile(models.Model):
         on_delete=models.CASCADE
     )
 
-    first_name = models.CharField(_('first name'), max_length=30, blank=True)
-    last_name = models.CharField(_('last name'), max_length=150, blank=True)
+    user_name = models.CharField(_('user name'), max_length=30)
     description = models.TextField(blank=True)
     gender = models.CharField(
         "性別",
@@ -113,22 +112,8 @@ class Profile(models.Model):
     image = models.ImageField(upload_to='media/profile', blank=True)
 
     def __str__(self):
-        fullname = self.get_full_name()
-        return self.user.email if fullname is None else fullname
-
-    def get_full_name(self):
-        """first_nameとlast_nameをスペースで繋げて返す"""
-        if self.first_name is None and self.last_name is None:
-            return None
-        full_name = '%s %s' % (self.first_name, self.last_name)
-        return full_name.strip()
-
-    def get_short_name(self):
-        """ユーザーのshort nameを返す"""
-        return self.first_name
+        return self.user_name
 
     def get_absolute_url(self):
         """ユーザー更新時の戻り先URL"""
-        fullname = self.get_full_name()
-        name = self.user.email if fullname is None else fullname
-        return reverse('users:profile', kwargs={'name': name})
+        return reverse('users:profile', kwargs={'name': self.user_name})

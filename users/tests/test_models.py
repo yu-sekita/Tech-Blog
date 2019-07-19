@@ -83,8 +83,7 @@ class ProfileTest(TestCase):
         user = User.objects.create(email='test@test.com', password='testpass')
         Profile.objects.create(
             user=user,
-            first_name='Taro',
-            last_name='Tanaka',
+            user_name='Taro-Tanaka',
             description="I'm a python programmer. This site made by Django",
             gender=GENDER_CHOICES[0],
             link='http://test.com',
@@ -94,22 +93,4 @@ class ProfileTest(TestCase):
         profiles = Profile.objects.all()
         self.assertEqual(profiles.count(), 1)
         profile = profiles[0]
-        self.assertEqual(profile.first_name, 'Taro')
-
-    def test_get_name(self):
-        """ショート、フルネームが取得できることの確認"""
-        User = get_user_model()
-        data = {
-            'email': 'testuser@test.com',
-            'password': 'test_password',
-        }
-        user = User.objects.create_user(**data)
-        profile = Profile.objects.create(
-            user=user,
-            first_name='Taro',
-            last_name='Tanaka')
-
-        full_name = '%s %s' % ('Taro', 'Tanaka')
-        self.assertEqual(profile.get_full_name(), full_name)
-        short_name = data.get('first_name')
-        self.assertEqual(profile.get_short_name(), 'Taro')
+        self.assertEqual(profile.user_name, 'Taro-Tanaka')

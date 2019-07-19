@@ -23,10 +23,11 @@ class LoginForm(AuthenticationForm):
 
 class UserCreateForm(UserCreationForm):
     """ユーザー登録用のフォーム"""
+    user_name = forms.CharField(max_length=50)
 
     class Meta:
         model = User
-        fields = ('email',)
+        fields = ('email', 'user_name')
 
     def __init__(self, *args, **kwargs):
         """Bootstrap4に対応させる"""

@@ -21,10 +21,7 @@ class LoginTest(TestCase):
         user.is_active = True
         user.save()
 
-        profile = Profile.objects.create(
-            user=user,
-            name=user.email
-        )
+        profile = Profile.objects.create(user=user, user_name='testname')
         profile.save()
 
     def test_get(self):
@@ -42,7 +39,39 @@ class LoginTest(TestCase):
         response = self.client.post(reverse('users:login'), data=data)
         confirm_url = reverse(
             'users:profile',
-            kwargs={'name': 'test@test.com'})
+            kwargs={'name': 'testname'})
+        self.assertRedirects(response, confirm_url)
+
+    def test_relation_user_and_profile(self):
+        """ユーザとプロフィールがしっかり紐づいていることの確認"""
+        from django.contrib.auth import get_user_model
+
+        # pkをずらすためユーザを作成し削除する
+        User = get_user_model()
+        user2 = User.objects.create_user(
+            email='test2@test.com',
+            password='password2')
+        self.assertEqual(user2.pk, 2)
+        user2.delete()
+
+        # もう一度ユーザを作成しプロフィールと紐づける
+        user3 = User.objects.create_user(
+            email='test3@test.com',
+            password='password3')
+        self.assertEqual(user3.pk, 3)
+        profile = Profile.objects.create(user=user3, user_name='profile2')
+        user3.is_active = True
+        user3.save()
+        profile.save()
+
+        login_data = {
+            'username': 'test3@test.com',
+            'password': 'password3'
+        }
+        response = self.client.post(reverse('users:login'), data=login_data)
+        confirm_url = reverse(
+            'users:profile',
+            kwargs={'name': 'profile2'})
         self.assertRedirects(response, confirm_url)
 
 
@@ -58,10 +87,10 @@ class ProfileTest(TestCase):
         )
         user.is_active = True
         user.save()
-        profile = Profile.objects.create(user=user, name=user.email)
+        profile = Profile.objects.create(user=user, user_name='testname')
         profile.save()
 
-        url = reverse('users:profile', kwargs={'name': profile.name})
+        url = reverse('users:profile', kwargs={'name': profile.user_name})
         response = self.client.get(url)
 
         # ステータス200
@@ -91,6 +120,7 @@ class UserCreateViewTest(TestCase):
         """postリクエスト時、データ有りのテスト"""
         data = {
             'email': 'test@test.com',
+            'user_name': 'testname',
             'password1': 'test_password',
             'password2': 'test_password',
         }
@@ -166,6 +196,9 @@ class UserCreateCompleteViewTest(TestCase):
         user = User.objects.create_user(email='email', password='testpassword')
         user.is_active = False
         user.save()
+        # プロフィールも保存
+        profile = Profile.objects.create(user=user, user_name='testname')
+        profile.save()
 
         # 仮登録したユーザーのトークンでリクエスト
         token = dumps(user.pk)
@@ -192,6 +225,9 @@ class UserCreateCompleteViewTest(TestCase):
         user = User.objects.create_user(email='email', password='testpassword')
         user.is_active = False
         user.save()
+        # プロフィールも保存
+        profile = Profile.objects.create(user=user, user_name='testname')
+        profile.save()
 
         # 仮登録したユーザーのトークンでリクエスト
         token = dumps(user.pk)
@@ -207,7 +243,7 @@ class UserCreateCompleteViewTest(TestCase):
         user = User.objects.get(pk=user_pk)
         profile = Profile.objects.get(pk=user_pk)
         self.assertEqual(profile.user, user)
-        self.assertEqual(profile.name, user.email)
+        self.assertEqual(profile.user_name, 'testname')
 
 
 class PasswordResetTest(TestCase):

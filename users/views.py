@@ -31,7 +31,7 @@ class ProfileView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         """プロフィールを表示"""
         context = super().get_context_data(**kwargs)
-        profile = Profile.objects.get(name=kwargs['name'])
+        profile = Profile.objects.get(user_name=kwargs['name'])
         context['profile'] = profile
         return context
 
@@ -46,11 +46,10 @@ class Login(LoginView):
         if next_url:
             return '%s' % (next_url)
         else:
-            user = self.request.user
-            profile = Profile.objects.get(pk=user.pk)
+            profile = Profile.objects.get(user=self.request.user)
             redirect_url = reverse(
                 'users:profile',
-                kwargs={'name': profile.name})
+                kwargs={'name': profile.user_name})
             return redirect_url
 
 
@@ -69,6 +68,11 @@ class UserCreateView(generic.CreateView):
         user = form.save(commit=False)
         user.is_active = False
         user.save()
+        # プロフィールも一緒に作成
+        profile = Profile.objects.create(
+            user=user,
+            user_name=form.cleaned_data['user_name'])
+        profile.save()
 
         # アクティベーションURLの送付
         current_site = get_current_site(self.request)
@@ -129,13 +133,6 @@ class UserCreateCompleteView(generic.TemplateView):
                     # 問題がなければ本登録
                     user.is_active = True
                     user.save()
-
-                    # プロフィールもDBに保存
-                    profile = Profile.objects.create(
-                        user=user,
-                        name=user.email
-                    )
-                    profile.save()
                     return super().get(request, **kwargs)
 
         return HttpResponseBadRequest()
