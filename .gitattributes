@@ -1,1 +1,2 @@
-Tech-Blog/staticfiles/* linguist-vendored
+staticfiles/* linguist-vendored
+staticfiles/* linguist-documentation
