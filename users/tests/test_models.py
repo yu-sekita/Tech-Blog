@@ -1,5 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.urls import reverse
 
 from users.models import (
     GENDER_CHOICES, Profile, User, UserManager
@@ -94,3 +95,20 @@ class ProfileTest(TestCase):
         self.assertEqual(profiles.count(), 1)
         profile = profiles[0]
         self.assertEqual(profile.user_name, 'Taro-Tanaka')
+
+    def test_absolute_url(self):
+        """更新完了時の戻り先URLを正しく取得できることの確認"""
+        User = get_user_model()
+        user = User.objects.create(email='test@test.com', password='testpass')
+        Profile.objects.create(
+            user=user,
+            user_name='Taro-Tanaka',
+            description="I'm a python programmer. This site made by Django",
+            gender=GENDER_CHOICES[0],
+            link='http://test.com',
+            hobby='playing soccer, programming python',
+        )
+
+        profile = Profile.objects.get(user=user)
+        confirm_url = reverse('users:profile', kwargs={'name': 'Taro-Tanaka'})
+        self.assertEqual(profile.get_absolute_url(), confirm_url)

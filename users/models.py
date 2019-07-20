@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.base_user import BaseUserManager
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import ugettext as _
 
