@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordResetView,
     PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView,
@@ -12,27 +11,27 @@ from django.core.signing import (
 from django.http import HttpResponseBadRequest
 from django.shortcuts import redirect
 from django.template.loader import get_template
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.views import generic
 
 from users.forms import (
     LoginForm, MyPasswordResetForm, MySetPasswordForm, UserCreateForm,
 )
+from users.models import Profile
 
 
 User = get_user_model()
 
 
-class ProfileView(LoginRequiredMixin, generic.TemplateView):
+class ProfileView(generic.TemplateView):
     """ユーザのプロフィールを表示"""
     template_name = 'users/profile.html'
 
     def get_context_data(self, **kwargs):
-        """フルネームがあればフルネームを表示"""
+        """プロフィールを表示"""
         context = super().get_context_data(**kwargs)
-        user = self.request.user
-        if user.is_authenticated:
-            context['name'] = user.get_full_name()
+        profile = Profile.objects.get(user_name=kwargs['name'])
+        context['profile'] = profile
         return context
 
 
@@ -40,6 +39,17 @@ class Login(LoginView):
     """ログイン"""
     form_class = LoginForm
     template_name = 'users/login.html'
+
+    def get_success_url(self):
+        next_url = self.get_redirect_url()
+        if next_url:
+            return '%s' % (next_url)
+        else:
+            profile = Profile.objects.get(user=self.request.user)
+            redirect_url = reverse(
+                'users:profile',
+                kwargs={'name': profile.user_name})
+            return redirect_url
 
 
 class Logout(LogoutView):
@@ -57,6 +67,11 @@ class UserCreateView(generic.CreateView):
         user = form.save(commit=False)
         user.is_active = False
         user.save()
+        # プロフィールも一緒に作成
+        profile = Profile.objects.create(
+            user=user,
+            user_name=form.cleaned_data['user_name'])
+        profile.save()
 
         # アクティベーションURLの送付
         current_site = get_current_site(self.request)

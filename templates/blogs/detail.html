@@ -2,11 +2,12 @@
 {% extends 'blogs/blogs_base.html' %}
 {% load markdown %}
 
-{% block title %}blog詳細{% endblock %}
+{% block title %}{{ article.title }}{% endblock %}
 
 {% block content %}
     <div class="container" style="margin-top: 100px;">
-        <h2>{{ article.title }}</h2>
+        <h1>{{ article.title }}</h1>
+        <hr>
         <br>
         {{ article.text | markdown_to_html }}
         <a href="{% url 'blogs:index' %}" class="btn btn-info mt-5">戻る</a>

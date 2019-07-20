@@ -3,7 +3,7 @@ from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import UserChangeForm, UserCreationForm
 from django.utils.translation import ugettext_lazy as _
 
-from .models import User
+from .models import Profile, User
 
 
 class MyUserChangeForm(UserChangeForm):
@@ -21,7 +21,6 @@ class MyUserCreationForm(UserCreationForm):
 class MyUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('email', 'password')}),
-        (_('Personal info'), {'fields': ('first_name', 'last_name')}),
         (_('Permissions'), {'fields': ('is_active', 'is_staff',
                                        'is_superuser', 'groups',
                                        'user_permissions')}),
@@ -35,10 +34,11 @@ class MyUserAdmin(UserAdmin):
     )
     form = MyUserChangeForm
     add_form = MyUserCreationForm
-    list_display = ('email', 'first_name', 'last_name', 'is_staff')
+    list_display = ('email', 'is_staff')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
-    search_fields = ('email', 'first_name', 'last_name')
+    search_fields = ('email',)
     ordering = ('email',)
 
 
 admin.site.register(User, MyUserAdmin)
+admin.site.register(Profile)

@@ -5,6 +5,97 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
+from users.models import Profile
+
+
+class LoginTest(TestCase):
+    """ログインviewのテスト"""
+    def setUp(self):
+        """ログインのためのユーザを準備"""
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        user = User.objects.create_user(
+            email='test@test.com',
+            password='password'
+        )
+        user.is_active = True
+        user.save()
+
+        profile = Profile.objects.create(user=user, user_name='testname')
+        profile.save()
+
+    def test_get(self):
+        """getリクエスト時のテスト"""
+        response = self.client.get(reverse('users:login'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'users/login.html')
+
+    def test_redirect_profile(self):
+        """ログイン後プロフィール画面にリダイレクトされることの確認"""
+        data = {
+            'username': 'test@test.com',
+            'password': 'password'
+        }
+        response = self.client.post(reverse('users:login'), data=data)
+        confirm_url = reverse(
+            'users:profile',
+            kwargs={'name': 'testname'})
+        self.assertRedirects(response, confirm_url)
+
+    def test_relation_user_and_profile(self):
+        """ユーザとプロフィールがしっかり紐づいていることの確認"""
+        from django.contrib.auth import get_user_model
+
+        # pkをずらすためユーザを作成し削除する
+        User = get_user_model()
+        user2 = User.objects.create_user(
+            email='test2@test.com',
+            password='password2')
+        self.assertEqual(user2.pk, 2)
+        user2.delete()
+
+        # もう一度ユーザを作成しプロフィールと紐づける
+        user3 = User.objects.create_user(
+            email='test3@test.com',
+            password='password3')
+        self.assertEqual(user3.pk, 3)
+        profile = Profile.objects.create(user=user3, user_name='profile2')
+        user3.is_active = True
+        user3.save()
+        profile.save()
+
+        login_data = {
+            'username': 'test3@test.com',
+            'password': 'password3'
+        }
+        response = self.client.post(reverse('users:login'), data=login_data)
+        confirm_url = reverse(
+            'users:profile',
+            kwargs={'name': 'profile2'})
+        self.assertRedirects(response, confirm_url)
+
+
+class ProfileTest(TestCase):
+    """プロフィールを表示するviewのテスト"""
+    def test_show_profile(self):
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+        user = User.objects.create_user(
+            email='test@test.com',
+            password='password'
+        )
+        user.is_active = True
+        user.save()
+        profile = Profile.objects.create(user=user, user_name='testname')
+        profile.save()
+
+        url = reverse('users:profile', kwargs={'name': profile.user_name})
+        response = self.client.get(url)
+
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+
 
 class UserCreateViewTest(TestCase):
     """ユーザの仮登録をするviewのテスト"""
@@ -29,6 +120,7 @@ class UserCreateViewTest(TestCase):
         """postリクエスト時、データ有りのテスト"""
         data = {
             'email': 'test@test.com',
+            'user_name': 'testname',
             'password1': 'test_password',
             'password2': 'test_password',
         }
@@ -91,10 +183,12 @@ class UserCreateCompleteViewTest(TestCase):
         # ステータス400
         self.assertEqual(response.status_code, 400)
 
-    def test_ok_token(self):
+    def test_ok_token_save_user(self):
         """トークンが正しく、ユーザが本登録されることの確認"""
         from django.contrib.auth import get_user_model
         from django.core.signing import dumps, loads
+
+        from users.models import Profile
 
         User = get_user_model()
 
@@ -102,6 +196,9 @@ class UserCreateCompleteViewTest(TestCase):
         user = User.objects.create_user(email='email', password='testpassword')
         user.is_active = False
         user.save()
+        # プロフィールも保存
+        profile = Profile.objects.create(user=user, user_name='testname')
+        profile.save()
 
         # 仮登録したユーザーのトークンでリクエスト
         token = dumps(user.pk)
@@ -116,6 +213,37 @@ class UserCreateCompleteViewTest(TestCase):
         user_pk = loads(token)
         user = User.objects.get(pk=user_pk)
         self.assertTrue(user.is_active)
+
+    def test_ok_token_save_profile(self):
+        """トークンが正しく、プロフィールが登録されることの確認"""
+        from django.contrib.auth import get_user_model
+        from django.core.signing import dumps, loads
+
+        User = get_user_model()
+
+        # ユーザを仮登録状態で準備
+        user = User.objects.create_user(email='email', password='testpassword')
+        user.is_active = False
+        user.save()
+        # プロフィールも保存
+        profile = Profile.objects.create(user=user, user_name='testname')
+        profile.save()
+
+        # 仮登録したユーザーのトークンでリクエスト
+        token = dumps(user.pk)
+        url = reverse('users:user_create_complete', args=[token])
+        response = self.client.get(url)
+
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # テンプレートuser_create_comlete.html
+        self.assertTemplateUsed(response, 'users/user_create_complete.html')
+        # プロフィールが保存されている
+        user_pk = loads(token)
+        user = User.objects.get(pk=user_pk)
+        profile = Profile.objects.get(pk=user_pk)
+        self.assertEqual(profile.user, user)
+        self.assertEqual(profile.user_name, 'testname')
 
 
 class PasswordResetTest(TestCase):
@@ -234,7 +362,6 @@ class PasswordResetConfirm(TestCase):
 
 class PasswordResetCompleteTest(TestCase):
     """パスワード再設定後viewのテスト"""
-
     def test_get(self):
         """getリクエストのテスト"""
         response = self.client.get(reverse('users:password_reset_complete'))

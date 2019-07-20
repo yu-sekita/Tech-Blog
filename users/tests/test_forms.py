@@ -37,9 +37,17 @@ class UserCreateFormTest(TestCase):
         """データ有り、バリデートが通るデータ"""
         form_data = {
             'email': 'test@test.com',
+            'user_name': 'Taro-Tanaka',
             'password1': 'test_password',
             'password2': 'test_password',
         }
         form = UserCreateForm(data=form_data)
         self.assertTrue(form.is_valid())
-        self.assertEqual(form.cleaned_data['email'], form_data.get('email'))
+        self.assertEqual(
+            form.cleaned_data['email'], form_data.get('email'))
+        self.assertEqual(
+            form.cleaned_data['user_name'], form_data.get('user_name'))
+        self.assertEqual(
+            form.cleaned_data['password1'], form_data.get('password1'))
+        self.assertEqual(
+            form.cleaned_data['password2'], form_data.get('password2'))

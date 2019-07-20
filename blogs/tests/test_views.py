@@ -6,6 +6,7 @@ from django.urls import reverse
 
 from blogs.models import Article
 from blogs.views import _set_full_name
+from users.models import Profile
 
 
 User = get_user_model()
@@ -17,27 +18,32 @@ class SetFullNameTest(TestCase):
         """ユーザーがいない時の確認"""
         context = {}
         _set_full_name(context, None)
-        self.assertEqual(context.get('name'), None)
+        self.assertEqual(context.get('name'), '')
 
-    def test_no_fullname(self):
+    def test_no_username(self):
         """フルネームがないユーザーの確認"""
-        context = {}
-        user = User.objects.create_user(email="test@t.com", password="passwor")
+        user = User.objects.create_user(
+            email="test@test.com", password="password")
         user.is_active = True
+        profile = Profile.objects.create(user=user, user_name='')
+        profile.save()
 
+        context = {}
         _set_full_name(context, user)
         self.assertEqual(context.get('name'), '')
 
     def test_with_fullname(self):
-        """フルネームがあるユーザーの確認"""
-        context = {}
-        user = User.objects.create_user(email="test@t.com", password="passwor")
+        """フルネームがあるプロフィールの確認"""
+        user = User.objects.create_user(
+            email="test@test.com", password="password")
         user.is_active = True
-        user.first_name = 'Potter'
-        user.last_name = 'Harry'
+        user.save()
+        profile = Profile.objects.create(user=user, user_name='testname')
+        profile.save()
 
+        context = {}
         _set_full_name(context, user)
-        self.assertEqual(context.get('name'), user.get_full_name())
+        self.assertEqual(context.get('name'), 'testname')
 
 
 class ArticleListViewTest(TestCase):
@@ -97,6 +103,8 @@ class ArticleCreateViewTest(TestCase):
         )
         user.is_active = True
         self.client.login(email='test@test.com', password='test_password')
+        profile = Profile.objects.create(user=user, user_name='testname')
+        profile.save()
 
         response = self.client.get(reverse('blogs:create'))
         # ステータス200
@@ -113,6 +121,8 @@ class ArticleCreateViewTest(TestCase):
         )
         user.is_active = True
         self.client.login(email='test@test.com', password='test_password')
+        profile = Profile.objects.create(user=user, user_name='testname')
+        profile.save()
 
         data = {}
         response = self.client.post(reverse('blogs:create'), data=data)
@@ -153,6 +163,8 @@ class ArticleCreateViewTest(TestCase):
         )
         user.is_active = True
         self.client.login(email='test@test.com', password='test_password')
+        profile = Profile.objects.create(user=user, user_name='testname')
+        profile.save()
 
         response = self.client.post(reverse('blogs:create'), data=data)
 
@@ -185,6 +197,8 @@ class ArticleCreateViewTest(TestCase):
         )
         user.is_active = True
         self.client.login(email='test@test.com', password='test_password')
+        profile = Profile.objects.create(user=user, user_name='testname')
+        profile.save()
 
         response = self.client.post(reverse('blogs:create'), data=data)
 
