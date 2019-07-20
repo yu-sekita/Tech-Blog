@@ -10,7 +10,7 @@ from django.core.signing import (
     BadSignature, dumps, loads, SignatureExpired,
 )
 from django.http import HttpResponseBadRequest
-from django.shortcuts import redirect, resolve_url
+from django.shortcuts import redirect
 from django.template.loader import get_template
 from django.urls import reverse, reverse_lazy
 from django.views import generic
