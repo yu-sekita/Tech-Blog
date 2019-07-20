@@ -29,6 +29,17 @@ jobs:
                 pipenv run python manage.py migrate
                 pipenv run python manage.py test
 
+    deploy:
+        docker:
+            - image: circleci/python:3.7
+        steps:
+            - checkout
+            - run:
+                name: heroku deploy
+                command: |
+                    git push https://heroku:$HEROKU_API_KEY@git.heroku.com/$HEROKU_APP_NAME.git master
+
+
 workflows:
     version: 2
     myworkflow:
@@ -37,3 +48,9 @@ workflows:
             - test:
                 requires:
                     - lint
+            - deploy:
+                requires:
+                    - test
+                filters:
+                    branches:
+                        only: master

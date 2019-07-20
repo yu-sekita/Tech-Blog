@@ -1,7 +1,10 @@
+from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import (
     AuthenticationForm, PasswordResetForm, SetPasswordForm, UserCreationForm,
 )
+
+# from users.models import Profile
 
 
 User = get_user_model()
@@ -20,10 +23,11 @@ class LoginForm(AuthenticationForm):
 
 class UserCreateForm(UserCreationForm):
     """ユーザー登録用のフォーム"""
+    user_name = forms.CharField(max_length=50)
 
     class Meta:
         model = User
-        fields = ('email',)
+        fields = ('email', 'user_name')
 
     def __init__(self, *args, **kwargs):
         """Bootstrap4に対応させる"""
@@ -54,3 +58,16 @@ class MySetPasswordForm(SetPasswordForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+
+
+# class ProfileEditForm(forms.ModelForm):
+#     """プロフィール編集用フォーム"""
+#
+#     class Meta:
+#         model = Profile
+#         fileds = ('name', 'description', 'gender', 'link', 'hobby')
+#
+#     def __init__(self, *args, **kwargs):
+#         super().__init__(*args, **kwargs)
+#         for field in self.fields.values():
+#             field.widget.attrs['class'] = 'form-control'

@@ -18,7 +18,7 @@ app_name = 'users'
 
 
 urlpatterns = [
-    path('profile/', ProfileView.as_view(), name='profile'),
+    path('profile/<name>/', ProfileView.as_view(), name='profile'),
     path('login/', Login.as_view(), name='login'),
     path('logout/', Logout.as_view(), name='logout'),
     path('user_create/', UserCreateView.as_view(), name='user_create'),
