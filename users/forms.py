@@ -4,7 +4,7 @@ from django.contrib.auth.forms import (
     AuthenticationForm, PasswordResetForm, SetPasswordForm, UserCreationForm,
 )
 
-# from users.models import Profile
+from users.models import Profile
 
 
 User = get_user_model()
@@ -60,14 +60,14 @@ class MySetPasswordForm(SetPasswordForm):
             field.widget.attrs['class'] = 'form-control'
 
 
-# class ProfileEditForm(forms.ModelForm):
-#     """プロフィール編集用フォーム"""
-#
-#     class Meta:
-#         model = Profile
-#         fileds = ('name', 'description', 'gender', 'link', 'hobby')
-#
-#     def __init__(self, *args, **kwargs):
-#         super().__init__(*args, **kwargs)
-#         for field in self.fields.values():
-#             field.widget.attrs['class'] = 'form-control'
+class ProfileEditForm(forms.ModelForm):
+    """プロフィール編集用フォーム"""
+
+    class Meta:
+        model = Profile
+        fields = ('user_name', 'description', 'gender', 'link', 'hobby')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'
