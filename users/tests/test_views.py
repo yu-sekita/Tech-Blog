@@ -39,7 +39,8 @@ class LoginTest(TestCase):
         response = self.client.post(reverse('users:login'), data=data)
         confirm_url = reverse(
             'users:profile',
-            kwargs={'name': 'testname'})
+            kwargs={'name': 'testname'}
+        )
         self.assertRedirects(response, confirm_url)
 
     def test_relation_user_and_profile(self):
@@ -50,14 +51,16 @@ class LoginTest(TestCase):
         User = get_user_model()
         user2 = User.objects.create_user(
             email='test2@test.com',
-            password='password2')
+            password='password2'
+        )
         self.assertEqual(user2.pk, 2)
         user2.delete()
 
         # もう一度ユーザを作成しプロフィールと紐づける
         user3 = User.objects.create_user(
             email='test3@test.com',
-            password='password3')
+            password='password3'
+        )
         self.assertEqual(user3.pk, 3)
         profile = Profile.objects.create(user=user3, user_name='profile2')
         user3.is_active = True
@@ -71,11 +74,12 @@ class LoginTest(TestCase):
         response = self.client.post(reverse('users:login'), data=login_data)
         confirm_url = reverse(
             'users:profile',
-            kwargs={'name': 'profile2'})
+            kwargs={'name': 'profile2'}
+        )
         self.assertRedirects(response, confirm_url)
 
 
-class ProfileTest(TestCase):
+class ProfileViewTest(TestCase):
     """プロフィールを表示するviewのテスト"""
     def test_show_profile(self):
         from django.contrib.auth import get_user_model
@@ -95,6 +99,129 @@ class ProfileTest(TestCase):
 
         # ステータス200
         self.assertEqual(response.status_code, 200)
+
+
+class ProfileEditViewTest(TestCase):
+    """プロフィール編集viewのテスト"""
+    def setUp(self):
+        # ユーザとプロフィールを作成
+        from django.contrib.auth import get_user_model
+        self.user = get_user_model().objects.create_user(
+            email='test@test.com',
+            password='password'
+        )
+        self.user.is_active = True
+        self.user.save()
+
+        profile = Profile.objects.create(
+            user=self.user,
+            user_name='Taro-Tanaka',
+            hobby='Camp',
+        )
+        profile.save()
+
+        # URLを作成
+        self.url = reverse(
+            'users:profile_edit',
+            kwargs={'name': 'Taro-Tanaka'}
+        )
+
+    def test_not_login_get(self):
+        """未ログイン時でgetリクエストした時のテスト"""
+        response = self.client.get(self.url)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # テンプレートprofile_edit.html
+        next_page = '/login/?next=%2Fprofile%2FTaro-Tanaka%2Fedit%2F'
+        self.assertRedirects(response, next_page)
+
+    def test_ok_get(self):
+        """getリクエスト時のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='password')
+
+        response = self.client.get(self.url)
+
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # テンプレートprofile_edit.html
+        self.assertTemplateUsed(response, 'users/profile_edit.html')
+
+    def test_not_login_post(self):
+        """未ログイン時でpostリクエストした時のテスト"""
+        form_data = {
+            'user_name': 'Taro',
+            'hobby': 'Programming'
+        }
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # テンプレートprofile_edit.html
+        next_page = '/login/?next=%2Fprofile%2FTaro-Tanaka%2Fedit%2F'
+        self.assertRedirects(response, next_page)
+
+    def test_post_no_data(self):
+        """postリクエスト時にデータが無い場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='password')
+
+        form_data = {}
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # テンプレートprofile_edit.html
+        self.assertTemplateUsed(response, 'users/profile_edit.html')
+
+    def test_no_username(self):
+        """ユーザ名を空で更新する場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='password')
+
+        form_data = {
+            'user_name': '',
+            'hobby': 'Programming'
+        }
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # テンプレートprofile_edit.html
+        self.assertTemplateUsed(response, 'users/profile_edit.html')
+
+    def test_ok_post(self):
+        """postリクエスト時、更新可能である場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='password')
+
+        form_data = {
+            'user_name': 'Taro-Tanaka',
+            'hobby': 'Programming'
+        }
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトusers:profile
+        self.assertRedirects(response, '/profile/Taro-Tanaka/')
+        # hobbyが更新されている
+        profile = Profile.objects.get(user=self.user)
+        self.assertEqual(profile.hobby, 'Programming')
+
+    def test_change_name(self):
+        """postリクエスト時、名前を変更する場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='password')
+
+        form_data = {
+            'user_name': 'Taro',
+        }
+        response = self.client.post(self.url, data=form_data)
+
+        # リダイレクトusers:profile
+        self.assertRedirects(response, '/profile/Taro/')
 
 
 class UserCreateViewTest(TestCase):

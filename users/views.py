@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.views import (
     LoginView, LogoutView, PasswordResetView,
     PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView,
@@ -15,7 +16,8 @@ from django.urls import reverse, reverse_lazy
 from django.views import generic
 
 from users.forms import (
-    LoginForm, MyPasswordResetForm, MySetPasswordForm, UserCreateForm,
+    LoginForm, MyPasswordResetForm, MySetPasswordForm, ProfileEditForm,
+    UserCreateForm,
 )
 from users.models import Profile
 
@@ -33,6 +35,17 @@ class ProfileView(generic.TemplateView):
         profile = Profile.objects.get(user_name=kwargs['name'])
         context['profile'] = profile
         return context
+
+
+class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
+    """プロフィール編集"""
+    model = Profile
+    form_class = ProfileEditForm
+    template_name = 'users/profile_edit.html'
+
+    def get_object(self):
+        """URLにpkを含まないため"""
+        return Profile.objects.get(user=self.request.user)
 
 
 class Login(LoginView):
