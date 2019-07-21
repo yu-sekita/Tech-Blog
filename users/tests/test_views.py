@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
 
+from blogs.models import Article
 from users.models import Profile
 
 
@@ -132,6 +133,27 @@ class ProfileViewTest(TestCase):
         self.assertEqual(
             response.context['profile'],
             profile2
+        )
+
+    def test_article(self):
+        """ユーザが記事を投稿している場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='password')
+
+        user = self.User.objects.get(email='test@test.com')
+        article = Article.objects.create(
+            title='test title',
+            text='test text',
+            author=user
+        )
+        article.save()
+
+        response = self.client.get(self.url)
+
+        # 作った記事を渡していること
+        self.assertEqual(
+            response.context['articles'][0].title,
+            'test title'
         )
 
 
