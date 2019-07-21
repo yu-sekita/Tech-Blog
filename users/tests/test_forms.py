@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from users.forms import (
-    UserCreateForm,
+    ProfileEditForm, UserCreateForm,
 )
 
 
@@ -51,3 +51,30 @@ class UserCreateFormTest(TestCase):
             form.cleaned_data['password1'], form_data.get('password1'))
         self.assertEqual(
             form.cleaned_data['password2'], form_data.get('password2'))
+
+
+class ProfileEditFormTest(TestCase):
+    """プロフィール編集用フォームのテスト"""
+    def test_no_data(self):
+        """データ無し"""
+        form_data = {}
+        form = ProfileEditForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+    def test_not_user_name(self):
+        """ユーザ名の空白で更新は不可能"""
+        form_data = {
+            'user_name': '',
+            'hobby': 'Programming'
+        }
+        form = ProfileEditForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+    def test_with_user_name(self):
+        """更新可能"""
+        form_data = {
+            'user_name': 'Taro-Tanaka',
+            'hobby': 'Programming'
+        }
+        form = ProfileEditForm(data=form_data)
+        self.assertTrue(form.is_valid())
