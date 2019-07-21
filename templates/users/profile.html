@@ -14,14 +14,14 @@
             <h3 style="margin: 20px 0px 20px 0px;">Proflie</h3>
         </div>
         <div class="col-md-9 col-lg-9" style="margin: 20px 0px 20px 0px;">
-            <a href="{% url 'users:profile_edit' profile.user_name %}" class="btn btn-info">
+            <a href="{% url 'users:profile_edit' profile.user_name %}" class="btn btn-secondary">
                 <i class="far fa-edit" style="margin-right: 4px;"></i>Edit
             </a>
         </div>
 
         <div class="col-md-9 col-lg-9">
             <table class="table">
-                <thead>
+                <thead >
                     <tr>
                         <th style="width: 30%;">name</th>
                         <th style="width: 70%;">{{ profile.user_name }}</th>
@@ -29,20 +29,20 @@
                 </thead>
                 <tbody>
                     <tr>
-                        <th style="width: 30%;">description</th>
-                        <td style="width: 70%;">{{ profile.description }}</td>
+                        <th style="width: 40%;">description</th>
+                        <td style="width: 60%;">{{ profile.description }}</td>
                     </tr>
                     <tr>
-                        <th style="width: 30%;">gender</th>
-                        <td style="width: 70%;">{{ profile.get_gender_display }}</td>
+                        <th style="width: 40%;">gender</th>
+                        <td style="width: 60%;">{{ profile.get_gender_display }}</td>
                     </tr>
                     <tr>
-                        <th style="width: 30%;">link</th>
-                        <td style="width: 70%;"><a href="{{ profile.link }}" target="blank">{{ profile.link }}</a></td>
+                        <th style="width: 40%;">link</th>
+                        <td style="width: 60%;"><a href="{{ profile.link }}" target="blank">{{ profile.link }}</a></td>
                     </tr>
                     <tr>
-                        <th style="width: 30%;">hobby</th>
-                        <td style="width: 70%;">{{ profile.hobby }}</td>
+                        <th style="width: 40%;">hobby</th>
+                        <td style="width: 60%;">{{ profile.hobby }}</td>
                     </tr>
                 </tbody>
             </table>
@@ -53,20 +53,25 @@
         <div class="col-md-12 col-lg-12">
             <h3 style="margin-top: 20px; margin-bottom: 20px;">Articles</h3>
         </div>
-        <div class="col-md-9 col-lg-9">
-            <table class="table">
+        <div class="col-md-10 col-lg-10">
+            <table class="table table-striped">
                 <thead>
                     <tr>
-                        <th>#</th>
-                        <th>title</th>
+                        <th style="width: 15%;">#</th>
+                        <th style="width: 60%;">title</th>
+                        <th style="width: 10%;"></th>
+                        <th style="width: 15%;"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for article in articles %}
                     <tr>
-                        <td style="width: 30%;">{{ article.created_at|date:'Y / n / j' }}</td>
-                        <td style="width: 70%;"><a href="{% url 'blogs:detail' article.pk %}">{{ article.title }}</a></td>
-                    <tr>
+                        <td style="width: 15%;">{{ article.created_at|date:'Y/n/j' }}</td>
+                        <td style="width: 60%;">{{ article.title }}</td>
+                        <td style="width: 10%;"><a href="{% url 'blogs:article_detail' article.pk %}" class="btn btn-info">View</a></td>
+                        <td style="width: 15%;"><a href="{% url 'blogs:article_edit' article.pk %}" class="btn btn-secondary">
+                            <i class="far fa-edit" style="margin-right: 4px;"></i>Edit</a></td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
