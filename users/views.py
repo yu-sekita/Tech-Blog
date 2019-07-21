@@ -48,12 +48,6 @@ class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
         """URLにpkを含まないため"""
         return Profile.objects.get(user=self.request.user)
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        articles = Article.objects.filter(author=self.request.user)
-        context['articles'] = article
-        return context
-
 
 class Login(LoginView):
     """ログイン"""
