@@ -15,7 +15,6 @@ from django.template.loader import get_template
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 
-from blogs.models import Article
 from users.forms import (
     LoginForm, MyPasswordResetForm, MySetPasswordForm, ProfileEditForm,
     UserCreateForm,
