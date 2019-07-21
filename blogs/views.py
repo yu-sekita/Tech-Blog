@@ -43,7 +43,7 @@ class ArticleCreateView(LoginRequiredMixin, generic.CreateView):
     """記事を追加するview"""
     model = Article
     form_class = ArticleForm
-    template_name = 'blogs/create.html'
+    template_name = 'blogs/article_create.html'
 
     def form_valid(self, form):
         """記事とユーザーを紐付ける"""
@@ -64,9 +64,22 @@ class ArticleDetailView(generic.DetailView):
     """記事の詳細を表示するview"""
     model = Article
     context_object_name = 'article'
-    template_name = 'blogs/detail.html'
+    template_name = 'blogs/article_detail.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        _set_full_name(context, self.request.user)
+        return context
+
+
+class ArticleEditView(LoginRequiredMixin, generic.UpdateView):
+    """記事編集画面を表示する"""
+    model = Article
+    form_class = ArticleForm
+    template_name = 'blogs/article_edit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # 戻るためのプロフィールidを渡す
         _set_full_name(context, self.request.user)
         return context

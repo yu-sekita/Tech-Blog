@@ -29,4 +29,4 @@ class Article(models.Model):
 
     def get_absolute_url(self):
         """更新完了時の戻り先URL"""
-        return reverse('blogs:index')
+        return reverse('blogs:article_detail', kwargs={'pk': self.id})
