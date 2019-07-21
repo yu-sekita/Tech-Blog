@@ -15,6 +15,7 @@ from django.template.loader import get_template
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 
+from blogs.models import Article
 from users.forms import (
     LoginForm, MyPasswordResetForm, MySetPasswordForm, ProfileEditForm,
     UserCreateForm,
@@ -30,10 +31,16 @@ class ProfileView(generic.TemplateView):
     template_name = 'users/profile.html'
 
     def get_context_data(self, **kwargs):
-        """プロフィールを表示"""
+        """プロフィール画面に表示する情報を登録"""
         context = super().get_context_data(**kwargs)
-        profile = Profile.objects.get(user_name=kwargs['name'])
+
+        # プロフィール情報
+        profile = Profile.objects.get(user=self.request.user)
         context['profile'] = profile
+
+        # ユーザが投稿した記事
+        articles = Article.objects.filter(author=self.request.user)
+        context['articles'] = articles
         return context
 
 
