@@ -25,6 +25,9 @@ class ArticleTest(TestCase):
         """更新完了時の戻り先URLを正しく取得できることの確認"""
         articles = Article.objects.all()
 
-        confirm_url = reverse('blogs:index')
         for article in articles:
+            confirm_url = reverse(
+                'blogs:article_detail',
+                kwargs={'pk': article.pk}
+            )
             self.assertEqual(article.get_absolute_url(), confirm_url)
