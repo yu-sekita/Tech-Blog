@@ -8,35 +8,70 @@
 
 {% block content %}
 <!-- edit profile here -->
-<div class="container" style="margin-top: 100px;">
-    <table class="table">
-        <thead>
-            <tr>
-                <th>name</th>
-                <th>{{ profile.user_name }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <th>description</th>
-                <td>{{ profile.description }}</td>
-            </tr>
-            <tr>
-                <th>gender</th>
-                <td>{{ profile.get_gender_display }}</td>
-            </tr>
-            <tr>
-                <th>link</th>
-                <td><a href="{{ profile.link }}" target="blank">{{ profile.link }}</a></td>
-            </tr>
-            <tr>
-                <th>hobby</th>
-                <td>{{ profile.hobby }}</td>
-            </tr>
-        </tbody>
-    </table>
-    <a href="{% url 'users:profile_edit' profile.user_name %}" class="btn btn-info">
-        <i class="far fa-edit" style="margin-right: 4px;"></i>Edit
-    </a>
+<div class="container" style="margin-top: 100px; margin-bottom: 100px;">
+    <div class="row">
+        <div class="col-md-3 col-lg-3">
+            <h3 style="margin: 20px 0px 20px 0px;">Proflie</h3>
+        </div>
+        <div class="col-md-9 col-lg-9" style="margin: 20px 0px 20px 0px;">
+            <a href="{% url 'users:profile_edit' profile.user_name %}" class="btn btn-info">
+                <i class="far fa-edit" style="margin-right: 4px;"></i>Edit
+            </a>
+        </div>
+
+        <div class="col-md-9 col-lg-9">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th style="width: 30%;">name</th>
+                        <th style="width: 70%;">{{ profile.user_name }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <th style="width: 30%;">description</th>
+                        <td style="width: 70%;">{{ profile.description }}</td>
+                    </tr>
+                    <tr>
+                        <th style="width: 30%;">gender</th>
+                        <td style="width: 70%;">{{ profile.get_gender_display }}</td>
+                    </tr>
+                    <tr>
+                        <th style="width: 30%;">link</th>
+                        <td style="width: 70%;"><a href="{{ profile.link }}" target="blank">{{ profile.link }}</a></td>
+                    </tr>
+                    <tr>
+                        <th style="width: 30%;">hobby</th>
+                        <td style="width: 70%;">{{ profile.hobby }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-12 col-lg-12">
+            <h3 style="margin-top: 20px; margin-bottom: 20px;">Articles</h3>
+        </div>
+        <div class="col-md-9 col-lg-9">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>title</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for article in articles %}
+                    <tr>
+                        <td style="width: 30%;">{{ article.created_at|date:'Y / n / j' }}</td>
+                        <td style="width: 70%;"><a href="{% url 'blogs:detail' article.pk %}">{{ article.title }}</a></td>
+                    <tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
