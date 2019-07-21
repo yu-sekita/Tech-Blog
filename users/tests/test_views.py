@@ -81,11 +81,12 @@ class LoginTest(TestCase):
 
 class ProfileViewTest(TestCase):
     """プロフィールを表示するviewのテスト"""
-    def test_show_profile(self):
+    def setUp(self):
+        # ユーザとプロフィールを作成
         from django.contrib.auth import get_user_model
 
-        User = get_user_model()
-        user = User.objects.create_user(
+        self.User = get_user_model()
+        user = self.User.objects.create_user(
             email='test@test.com',
             password='password'
         )
@@ -94,11 +95,44 @@ class ProfileViewTest(TestCase):
         profile = Profile.objects.create(user=user, user_name='testname')
         profile.save()
 
-        url = reverse('users:profile', kwargs={'name': profile.user_name})
-        response = self.client.get(url)
+        self.url = reverse(
+            'users:profile',
+            kwargs={'name': profile.user_name}
+        )
+
+    def test_ok_get(self):
+        """getリクエスト時のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='password')
+
+        response = self.client.get(self.url)
 
         # ステータス200
         self.assertEqual(response.status_code, 200)
+
+    def test_same_name(self):
+        """同じ名前の異なるユーザがいる場合のテスト"""
+        user2 = self.User.objects.create_user(
+            email='test2@test.com',
+            password='password2'
+        )
+        user2.is_active = True
+        user2.save()
+        # 作ったユーザでログイン
+        self.client.login(email='test2@test.com', password='password2')
+
+        profile2 = Profile.objects.create(user=user2, user_name='testname')
+        profile2.save()
+
+        response = self.client.get(self.url)
+
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # 2つ目のプロフィールが渡されている
+        self.assertEqual(
+            response.context['profile'],
+            profile2
+        )
 
 
 class ProfileEditViewTest(TestCase):

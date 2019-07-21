@@ -32,7 +32,7 @@ class ProfileView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         """プロフィールを表示"""
         context = super().get_context_data(**kwargs)
-        profile = Profile.objects.get(user_name=kwargs['name'])
+        profile = Profile.objects.get(user=self.request.user)
         context['profile'] = profile
         return context
 
