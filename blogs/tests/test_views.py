@@ -106,11 +106,11 @@ class ArticleCreateViewTest(TestCase):
         profile = Profile.objects.create(user=user, user_name='testname')
         profile.save()
 
-        response = self.client.get(reverse('blogs:create'))
+        response = self.client.get(reverse('blogs:article_create'))
         # ステータス200
         self.assertEqual(response.status_code, 200)
-        # テンプレートcreate.html
-        self.assertTemplateUsed(response, 'blogs/create.html')
+        # テンプレートarticle_create.html
+        self.assertTemplateUsed(response, 'blogs/article_create.html')
 
     def test_no_dada(self):
         """空のデータでpost時のテスト"""
@@ -125,11 +125,11 @@ class ArticleCreateViewTest(TestCase):
         profile.save()
 
         data = {}
-        response = self.client.post(reverse('blogs:create'), data=data)
+        response = self.client.post(reverse('blogs:article_create'), data=data)
         # ステータス200
         self.assertEqual(response.status_code, 200)
-        # テンプレートcreate.html
-        self.assertTemplateUsed(response, 'blogs/create.html')
+        # テンプレートarticle_create.html
+        self.assertTemplateUsed(response, 'blogs/article_create.html')
         # DBに登録されていないことの確認
         articles = Article.objects.all()
         self.assertEqual(articles.count(), 0)
@@ -140,10 +140,10 @@ class ArticleCreateViewTest(TestCase):
             'title': 'Test1',
             'text': 'Test1 text',
         }
-        response = self.client.post(reverse('blogs:create'), data=data)
+        response = self.client.post(reverse('blogs:article_create'), data=data)
         # ステータス302
         self.assertEqual(response.status_code, 302)
-        # テンプレートcreate.html
+        # テンプレートarticle_create.html
         self.assertRedirects(response, '/login/?next=/create/')
         # DBに登録されていないことの確認
         articles = Article.objects.all()
@@ -166,7 +166,7 @@ class ArticleCreateViewTest(TestCase):
         profile = Profile.objects.create(user=user, user_name='testname')
         profile.save()
 
-        response = self.client.post(reverse('blogs:create'), data=data)
+        response = self.client.post(reverse('blogs:article_create'), data=data)
 
         # ステータス302
         self.assertEqual(response.status_code, 302)
@@ -200,7 +200,7 @@ class ArticleCreateViewTest(TestCase):
         profile = Profile.objects.create(user=user, user_name='testname')
         profile.save()
 
-        response = self.client.post(reverse('blogs:create'), data=data)
+        response = self.client.post(reverse('blogs:article_create'), data=data)
 
         # textはエスケープされてDBに登録されていることの確認
         articles = Article.objects.all()
@@ -213,7 +213,7 @@ class ArticleDetailViewTest(TestCase):
     """記事の詳細を表示するviewのテスト"""
     def test_no_data(self):
         """空のデータでget時のテスト"""
-        url = reverse('blogs:detail', args=(uuid.uuid4(), ))
+        url = reverse('blogs:article_detail', args=(uuid.uuid4(), ))
         response = self.client.get(url)
         # ステータス404
         self.assertEqual(response.status_code, 404)
@@ -221,11 +221,132 @@ class ArticleDetailViewTest(TestCase):
     def test_one_data(self):
         """1件のデータがある時のテスト"""
         article = Article.objects.create(title='test1', text='test text1')
-        url = reverse('blogs:detail', args=(article.id, ))
+        url = reverse('blogs:article_detail', args=(article.id, ))
 
         response = self.client.get(url)
         # ステータス200
         self.assertEqual(response.status_code, 200)
-        # テンプレートdetail.html
-        self.assertTemplateUsed(response, 'blogs/detail.html')
+        # テンプレートarticle_detail.html
+        self.assertTemplateUsed(response, 'blogs/article_detail.html')
         self.assertContains(response, article.title)
+
+
+class ArticleEditViewTest(TestCase):
+    """記事編集viewのテスト"""
+    def setUp(self):
+        # ユーザを保存
+        user = User.objects.create_user(
+            email='test@test.com',
+            password='testpass'
+        )
+        user.is_active = True
+        user.save()
+
+        # プロフィールを保存
+        profile = Profile.objects.create(
+            user=user,
+            user_name='test name'
+        )
+        profile.save()
+
+        # 記事を保存
+        article = Article.objects.create(
+            title='test title',
+            text='test text',
+            author=user
+        )
+        article.save()
+
+        # id
+        self.id = article.id
+        # URL
+        self.url = reverse('blogs:article_edit', args=(self.id, ))
+
+    def test_not_login_get(self):
+        """未ログインでgetリクエストした場合のテスト"""
+        response = self.client.get(self.url)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトlogin
+        confirm_redirect = '/login/?next=%2Fedit%2F' + str(self.id) + '/'
+        self.assertRedirects(response, confirm_redirect)
+
+    def test_ok_get(self):
+        """getリクエストが成功する場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='testpass')
+
+        response = self.client.get(self.url)
+
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # テンプレートblogs/article_edit.html
+        self.assertTemplateUsed(response, 'blogs/article_edit.html')
+
+    def test_not_login_post(self):
+        """未ログインでpostリクエストした場合のテスト"""
+        form_data = {
+            'title': 'test title',
+            'text': 'rename test text2'
+        }
+
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトlogin
+        confirm_redirect = '/login/?next=%2Fedit%2F' + str(self.id) + '/'
+        self.assertRedirects(response, confirm_redirect)
+
+    def test_empty_title_post(self):
+        """タイトルが空文字でpostリクエストした場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='testpass')
+
+        form_data = {
+            'title': '',
+            'text': 'rename test text2'
+        }
+
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # テンプレートblogs/article_edit.html
+        self.assertTemplateUsed(response, 'blogs/article_edit.html')
+
+    def test_empty_text_post(self):
+        """本文が空文字でpostリクエストした場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='testpass')
+
+        form_data = {
+            'title': 'rename test title',
+            'text': ''
+        }
+
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # テンプレートblogs/article_edit.html
+        self.assertTemplateUsed(response, 'blogs/article_edit.html')
+
+    def test_ok_post(self):
+        """postリクエストが成功する場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='testpass')
+
+        form_data = {
+            'title': 'rename test title2',
+            'text': 'rename test text2'
+        }
+
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトarticle_detail
+        confirm_redirect = '/detail/' + str(self.id) + '/'
+        self.assertRedirects(response, confirm_redirect)

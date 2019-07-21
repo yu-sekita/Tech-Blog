@@ -19,7 +19,7 @@
                         <div class="card-deck">
                             {% for article in articles %}
                             <div class="filter">
-                                <a class="card-deck border-secondary shadow" style="margin: 15px; width: 20rem; height: 15rem;" href="{% url 'blogs:detail' article.pk %}">
+                                <a class="card-deck border-secondary shadow" style="margin: 15px; width: 20rem; height: 15rem;" href="{% url 'blogs:article_detail' article.pk %}">
                                     <div class="card-body text-secondary">
                                         <h4 class="card-title">{{ article.title }}</h4>
                                     </div>
