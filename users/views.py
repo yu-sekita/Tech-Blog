@@ -15,6 +15,7 @@ from django.template.loader import get_template
 from django.urls import reverse, reverse_lazy
 from django.views import generic
 
+from blogs.models import Article
 from users.forms import (
     LoginForm, MyPasswordResetForm, MySetPasswordForm, ProfileEditForm,
     UserCreateForm,
@@ -32,7 +33,7 @@ class ProfileView(generic.TemplateView):
     def get_context_data(self, **kwargs):
         """プロフィールを表示"""
         context = super().get_context_data(**kwargs)
-        profile = Profile.objects.get(user_name=kwargs['name'])
+        profile = Profile.objects.get(user=self.request.user)
         context['profile'] = profile
         return context
 
@@ -46,6 +47,12 @@ class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
     def get_object(self):
         """URLにpkを含まないため"""
         return Profile.objects.get(user=self.request.user)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        articles = Article.objects.filter(author=self.request.user)
+        context['articles'] = article
+        return context
 
 
 class Login(LoginView):
