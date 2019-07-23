@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'users',
     'bootstrap4',
     'markdownx',
+    'django.forms',
 ]
 
 MIDDLEWARE = [
@@ -79,6 +80,8 @@ TEMPLATES = [
         },
     },
 ]
+
+FORM_RENDERER = 'django.forms.renderers.TemplatesSetting'
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
