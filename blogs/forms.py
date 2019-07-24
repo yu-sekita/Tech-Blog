@@ -8,7 +8,7 @@ class ArticleForm(forms.ModelForm):
 
     class Meta:
         model = Article
-        fields = ('title', 'text')
+        fields = ('title', 'text', 'is_public')
         widgets = {
             'text': MarkdownxWidget(attrs={'class': 'textarea'}),
         }
@@ -17,5 +17,7 @@ class ArticleForm(forms.ModelForm):
         """Bootstrap4に対応させる"""
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
-            field.widget.attrs['class'] = 'form-control'
-            field.widget.attrs['placeholder'] = field.label
+            if isinstance(field, forms.BooleanField):
+                field.widget.attrs['class'] = 'form-check-input'
+            else:
+                field.widget.attrs['class'] = 'form-control'

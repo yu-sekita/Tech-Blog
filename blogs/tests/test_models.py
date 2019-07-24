@@ -20,6 +20,7 @@ class ArticleTest(TestCase):
         self.assertEqual(articles.count(), 3)
         self.assertEqual(articles[0].title, 'Test1')
         self.assertEqual(articles[1].text, 'Test2 text')
+        self.assertTrue(articles[1].is_public)
 
     def test_absolute_url(self):
         """更新完了時の戻り先URLを正しく取得できることの確認"""
