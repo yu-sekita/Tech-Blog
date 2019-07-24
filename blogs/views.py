@@ -34,6 +34,7 @@ class ArticleListView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # ユーザーのフルネーム
         _set_full_name(context, self.request.user)
 
         # 公開記事のみ表示
@@ -59,6 +60,7 @@ class ArticleCreateView(LoginRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # ユーザーのフルネーム
         _set_full_name(context, self.request.user)
         return context
 
@@ -71,7 +73,11 @@ class ArticleDetailView(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        # ユーザーのフルネーム
         _set_full_name(context, self.request.user)
+
+        # ログインユーザ
+        context['login_user'] = self.request.user
         return context
 
 
@@ -83,6 +89,6 @@ class ArticleEditView(LoginRequiredMixin, generic.UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # 戻るためのプロフィールidを渡す
+        # ユーザーのフルネーム
         _set_full_name(context, self.request.user)
         return context
