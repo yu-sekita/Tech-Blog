@@ -1,26 +1,53 @@
 {% extends 'blogs/blogs_base.html' %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
 
-{% block title %} Article Edit {% endblock %}
+{% block title %} Edit Article {% endblock %}
 
 {% block content %}
-<div class="container" style="margin-top: 100px; margin-bottom: 100px">
-    <div class="col-md-6 offset-md-3">
+    <div class="container" style="margin-top: 100px; margin-bottom: 100px">
+        <div class="row mt-5 mb-5">
+            <div class="col-md-12">
+                <a href="{% url 'users:profile' name %}" class="btn btn-light">
+                    <i class="fas fa-backward" style="margin-right: 4px;"></i>Back
+                </a>
+            </div>
+        </div>
+
         <form action="" method="POST">
             {{ form.non_field_errors }}
             {% for field in form %}
             <div class="form-group">
-                <label for="{{ field.id_for_label }}">{{ field.label_tag }}</label>
                 {{ field }}
                 {{ field.errors }}
             </div>
             {% endfor %}
             {% csrf_token %}
 
-            <button type="submit" class="btn btn-success btn-lg">Modify</button>
+            <div class="form-group row mt-5 mb-5">
+                <div class="col-md-12">
+                    <button class="btn btn-success" type="submit">Modify</button>
+                </div>
+            </div>
         </form>
+        {{ form.media }}
     </div>
-    <a href="{% url 'users:profile' name %}" class="btn btn-light">
-        <i class="fas fa-backward" style="margin-right: 4px;"></i>Back
-    </a>
-</div>
+
+    <!-- highlight.js -->
+    <link rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.15.8/highlight.min.js"></script>
+    <!-- プレビューにもシンタックスハイライトを適応 -->
+    <script>
+
+        const elements = document.getElementsByClassName('markdownx');
+        for (element of elements) {
+            element.addEventListener('markdownx.update', event => {
+                for (const block of document.querySelectorAll('pre code')) {
+                    hljs.highlightBlock(block);
+                }
+            });
+        }
+
+    </script>
 {% endblock %}
