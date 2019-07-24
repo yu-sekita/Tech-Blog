@@ -23,6 +23,7 @@ class Article(models.Model):
         on_delete=models.CASCADE,
         null=True
     )
+    is_public = models.BooleanField('公開', default=True)
 
     def __str__(self):
         return self.title
