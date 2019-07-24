@@ -91,6 +91,19 @@ class ArticleListViewTest(TestCase):
             ordered=False
         )
 
+    def test_with_private_aritcle(self):
+        """非公開記事がある場合のテスト"""
+        Article.objects.bulk_create([
+            Article(title='title1', text='text1'),
+            Article(title='title2', text='text2', is_public=False),
+        ])
+
+        response = self.client.get(reverse('blogs:index'))
+        # 公開記事のみ表示
+        self.assertEqual(response.context['articles'].count(), 1)
+        self.assertEqual(response.context['articles'][0].title, 'title1')
+        self.assertTrue(response.context['articles'][0].is_public)
+
 
 class ArticleCreateViewTest(TestCase):
     """記事を追加するviewのテスト"""
