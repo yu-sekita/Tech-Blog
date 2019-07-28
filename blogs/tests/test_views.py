@@ -1,7 +1,9 @@
+import datetime
 import uuid
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
+from django.utils import timezone
 from django.urls import reverse
 
 from blogs.models import Article
@@ -103,6 +105,27 @@ class ArticleListViewTest(TestCase):
         self.assertEqual(response.context['articles'].count(), 1)
         self.assertEqual(response.context['articles'][0].title, 'title1')
         self.assertTrue(response.context['articles'][0].is_public)
+
+    def test_orderd(self):
+        """作成日時の降順で出力されることの確認"""
+        # 一番新しい記事
+        time = timezone.now() + datetime.timedelta(days=30)
+        article1 = Article.objects.create(
+            title='first', text='1', created_at=time)
+        # 一番古い記事
+        time = timezone.now() + datetime.timedelta(days=10)
+        article2 = Article.objects.create(
+            title='third', text='3', created_at=time)
+        # ２番目に新しい記事
+        time = timezone.now() + datetime.timedelta(days=20)
+        article3 = Article.objects.create(
+            title='second', text='2', created_at=time)
+
+        response = self.client.get(reverse('blogs:index'))
+        result = response.context['articles']
+        self.assertEqual(result[0].text, '1')
+        self.assertEqual(result[1].text, '2')
+        self.assertEqual(result[2].text, '3')
 
 
 class ArticleCreateViewTest(TestCase):
