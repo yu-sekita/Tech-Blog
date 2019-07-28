@@ -29,17 +29,20 @@ def _set_full_name(context, user):
 class ArticleListView(generic.ListView):
     """記事の一覧を表示するview"""
     model = Article
+    context_object_name = 'articles'
     template_name = 'blogs/index.html'
     paginate_by = 12
+
+    def get_queryset(self):
+        # 公開記事のみ、作成日時の降順でソートして表示
+        public_articles = Article.objects.filter(is_public=True)
+        orderd_public_article = public_articles.order_by('-created_at')
+        return orderd_public_article
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # ユーザーのフルネーム
         _set_full_name(context, self.request.user)
-
-        # 公開記事のみ表示
-        public_articles = Article.objects.filter(is_public=True)
-        context['articles'] = public_articles
         return context
 
 
