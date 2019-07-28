@@ -196,7 +196,7 @@ class ArticleCreateViewTest(TestCase):
         <script> alert('test xss') </script>'''
 
         confirm_text = '''test
-        &lt;script&gt; alert('test xss') &lt;/script&gt;'''
+        &lt;script&gt; alert(&#39;test xss&#39;) &lt;/script&gt;'''
 
         data = {
             'title': 'Test1',

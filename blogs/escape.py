@@ -1,3 +1,92 @@
+import re
+from collections import deque
+
+
+class Phrase:
+    """語句を表す
+
+    Attributes:
+        is_accept: エスケープを許容するかどうか(bool)
+        text: 語句本体(str)
+    """
+    def __init__(self, text=''):
+        self.is_accept = False
+        self.text = text
+
+
+class Sentence:
+    """文を表す
+
+    Phraseの集まり
+    """
+    def __init__(self):
+        self._phrases = deque()
+
+    @property
+    def phrases(self):
+        return self._phrases
+
+    def set_phrase(self, phrase):
+        self._phrases.append(phrase)
+
+
+def create_sentence(text):
+    """textからphraseで区切ったsentenceを作る
+
+    ```で括られている文とそれ以外の文を作成
+    """
+    sentence = Sentence()
+    # phraseは0から
+    phrase_count = 0
+    current_i = 0
+
+    result_iter = re.finditer('```', text)
+
+    for result in result_iter:
+        result_start_i, result_end_i = result.span()
+
+        phrase = Phrase(text[current_i:result_start_i])
+        if phrase_count % 2 == 0:
+            # 偶数の場合エスケープ対象
+            phrase.is_accept = False
+        else:
+            # 奇数の場合エスケープ対象外
+            phrase.is_accept = True
+        sentence.set_phrase(phrase)
+
+        phrase_count += 1
+        current_i = result_end_i
+
+        # Phraseの間に```を入れる
+        quot_phrase = Phrase('```')
+        quot_phrase.is_accept = True
+        sentence.set_phrase(quot_phrase)
+
+    end_phrase = Phrase(text[current_i:])
+    end_phrase.is_accept = False
+    sentence.set_phrase(end_phrase)
+
+    return sentence
+
+
+def replace_trans(text, d):
+    """replaceを使って変換を行う関数"""
+    for k, v in d.items():
+        text = text.replace(k, v)
+    return text
+
+
+def str_trans(text, d):
+    """str.translateを使って変換を行う関数
+
+    引数のdのkeyは必ず1文字の場合のみ使える
+      ex) d = { '<': '&lt;', '>': '&gt;'}
+    """
+    if len([k for k in d.keys() if len(k) > 1]) > 0:
+        raise ValueError('key mast be one size')
+
+    text = text.translate(str.maketrans(d))
+    return text
 
 
 class Translater:
@@ -9,7 +98,7 @@ class Translater:
     Methods:
         group: permutation_groupを返す
         setgroup: permutation_groupに保存
-        translate: permutation_groupに保存されている文字を変換
+        translate: permutation_groupに保存されている文字で変換
     """
     def __init__(self):
         """Constructor.置換前と置換後を保存するためのdictを作成
@@ -17,6 +106,7 @@ class Translater:
         permutation_group: 置換前がkeyで、置換後がvalue
                  ex) permutation_group = { '&lt;': '<' }
         """
+        self._translate = replace_trans
         self._permutation_group = {}
 
     @property
@@ -29,9 +119,8 @@ class Translater:
 
     def translate(self, text):
         """置換を行う"""
-        for escaped_text, accepted_text in self._permutation_group.items():
-            text = text.replace(escaped_text, accepted_text)
-        return text
+        escaped_text = self._translate(text, self._permutation_group)
+        return escaped_text
 
 
 class HtmlAccepter(Translater):
@@ -79,20 +168,68 @@ class HtmlAccepter(Translater):
         return unescaped_text
 
 
-def escape_tag(un_escaped_text, *accept_texts):
-    """タグをエスケープする関数
+def escape_html(text):
+    """Htmlのタグなどをエスケープする"""
+    d = {
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        '\'': '&#39;'
+    }
+    escaped_text = str_trans(text, d)
+    return escaped_text
+
+
+def escape_html_filter(text):
+    """対象のtextのHtml特殊文字をエスケープする
+
+    ```で囲まれたブロックはエスケープ対象外
+
+    Arg:
+        text: エスケープしてほしい文字列(str)
+    Return:
+        escaped_text: ```で囲まれた文以外エスケープされたtext(str)
+    """
+    sentence = create_sentence(text)
+
+    escaped_text = ''
+    for phrase in sentence.phrases:
+        if phrase.is_accept:
+            escaped_text += phrase.text
+        else:
+            escaped_text += escape_html(phrase.text)
+    return escaped_text
+
+
+def _create_escape_filters(*accept_texts):
+    """フィルターを作成
+
+    エスケープやアンエスケープ処理を行う関数のリストを返す
+    """
+    filters = []
+
+    # Html特殊文字をエスケープするフィルター
+    filters.append(escape_html_filter)
+
+    # 許容されたHtmlタグはアンエスケープするフィルター
+    if accept_texts:
+        accepter = HtmlAccepter()
+        accepter.accepts(*accept_texts)
+        filters.append(accepter.unescape_html_filter)
+
+    return filters
+
+
+def escape_markdown(text, *accept_texts):
+    """markdown用のタグをエスケープする関数
 
     エスケープしないタグがあれば無効とする
 
     Args:
+        text: エスケープ対象文字列
         accept_texts: エスケープしないタグ
     """
-    escaped_text = un_escaped_text.translate(str.maketrans({
-        '<': '&lt;',
-        '>': '&gt;'
-    }))
-    if accept_texts:
-        accepter = HtmlAccepter()
-        accepter.accepts(*accept_texts)
-        escaped_text = accepter.unescape_html_filter(escaped_text)
-    return escaped_text
+    filters = _create_escape_filters(*accept_texts)
+    for filter in filters:
+        text = filter(text)
+    return text
