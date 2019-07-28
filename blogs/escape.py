@@ -162,9 +162,25 @@ class HtmlAccepter(Translater):
 
         return self._permutation_group
 
-    def unescape_html_filter(self, escaped_text):
-        """エスケープを無効にしたhtmlタグをアンエスケープする"""
-        unescaped_text = self.translate(escaped_text)
+    def unescape_html_filter(self, text):
+        """許容されたhtml特殊文字はアンエスケープする
+
+        ```で囲まれたブロックはエスケープ対象外
+
+        Arg:
+            text: アンエスケープしてほしい文字列(str)
+        Return:
+            unescaped_text: ```で囲まれた文以外アンエスケープされたtext(str)
+        """
+        sentence = create_sentence(text)
+
+        unescaped_text = ''
+        for phrase in sentence.phrases:
+            if phrase.is_accept:
+                unescaped_text += phrase.text
+            else:
+                unescaped_text += self.translate(phrase.text)
+
         return unescaped_text
 
 
