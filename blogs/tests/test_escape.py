@@ -345,6 +345,52 @@ class HtmlAccepterTest(TestCase):
 
         self.assertEquals(result, confirm_result)
 
+    def test_unescape_filter_with_qout(self):
+        """トリプルクォートで囲まれた文以外で
+        エスケープを無効にした文字列をアンエスケープするテスト
+        """
+        from blogs.escape import HtmlAccepter
+        from blogs.escape import escape_html
+        acceptation = HtmlAccepter()
+
+        test_text = '''
+        Here is Sentence1.&lt;br&gt;
+        Not accepte escapeing block.
+        But br will unescape.
+        ```
+            Here is Sentence2.
+            In the quot block.&lt;br&gt;
+            Accepted escaping block.
+        ```
+        Here is Sentence3.&lt;br&gt;
+        &lt;li&gt; will escape.
+        Not accepte escapeing block.
+        But li will unescape.
+        '''
+        confirm_text = '''
+        Here is Sentence1.<br>
+        Not accepte escapeing block.
+        But br will unescape.
+        ```
+            Here is Sentence2.
+            In the quot block.&lt;br&gt;
+            Accepted escaping block.
+        ```
+        Here is Sentence3.<br>
+        <li> will escape.
+        Not accepte escapeing block.
+        But li will unescape.
+        '''
+
+        # タグをエスケープする
+        test_text = escape_html(test_text)
+
+        # 無害なhtmlをアンエスケープする
+        acceptation.accepts('br', 'ul', 'li')
+        result = acceptation.unescape_html_filter(test_text)
+
+        self.assertEquals(result, confirm_text)
+
 
 class EscapeHtmlTest(TestCase):
     """Htmlのタグなどをエスケープする関数のテスト"""
