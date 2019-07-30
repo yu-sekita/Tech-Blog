@@ -85,8 +85,7 @@ def str_trans(text, d):
     if len([k for k in d.keys() if len(k) > 1]) > 0:
         raise ValueError('key mast be one size')
 
-    text = text.translate(str.maketrans(d))
-    return text
+    return text.translate(str.maketrans(d))
 
 
 class Translater:
@@ -192,8 +191,7 @@ def escape_html(text):
         '"': '&quot;',
         '\'': '&#39;'
     }
-    escaped_text = str_trans(text, d)
-    return escaped_text
+    return str_trans(text, d)
 
 
 def escape_html_filter(text):
@@ -222,18 +220,14 @@ def _create_escape_filters(*accept_texts):
 
     エスケープやアンエスケープ処理を行う関数のリストを返す
     """
-    filters = []
-
     # Html特殊文字をエスケープするフィルター
-    filters.append(escape_html_filter)
+    yield escape_html_filter
 
     # 許容されたHtmlタグはアンエスケープするフィルター
     if accept_texts:
         accepter = HtmlAccepter()
         accepter.accepts(*accept_texts)
-        filters.append(accepter.unescape_html_filter)
-
-    return filters
+        yield accepter.unescape_html_filter
 
 
 def escape_markdown(text, *accept_texts):
