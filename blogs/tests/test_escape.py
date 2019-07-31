@@ -18,7 +18,7 @@ class PhraseTest(TestCase):
         from blogs.escape import Phrase
 
         phrase = Phrase('test text')
-        self.assertFalse(phrase.is_accept)
+        self.assertFalse(phrase.is_accepted)
         self.assertEqual(phrase.text, 'test text')
 
 
@@ -40,12 +40,33 @@ class SentenceTest(TestCase):
         phrase1 = Phrase('phrase1')
         sentence.set_phrase(phrase1)
         phrase2 = Phrase('phrase2')
-        phrase2.is_accept = True
+        phrase2.is_accepted = True
         sentence.set_phrase(phrase2)
 
         phrases = sentence.phrases
-        self.assertFalse(phrases[0].is_accept)
-        self.assertTrue(phrases[1].is_accept)
+        self.assertFalse(phrases[0].is_accepted)
+        self.assertTrue(phrases[1].is_accepted)
+
+    def test_str_phrase(self):
+        """引数にstr型を渡した場合の確認"""
+        from blogs.escape import Phrase, Sentence
+
+        sentence = Sentence()
+        sentence.set_phrase('phrase str')
+
+        phrases = sentence.phrases
+        self.assertFalse(phrases[0].is_accepted)
+        self.assertEqual(phrases[0].text, 'phrase str')
+
+    def test_arg_error(self):
+        """引数にint型を渡した場合の確認"""
+        from blogs.escape import Sentence
+
+        sentence = Sentence()
+        with self.assertRaises(ValueError) as error:
+            sentence.set_phrase(10)
+        error_message = 'phrase must be str or Phrase instance'
+        self.assertEqual(error.exception.args[0], error_message)
 
 
 class CreateSentenceTest(TestCase):
@@ -117,11 +138,11 @@ class CreateSentenceTest(TestCase):
         from blogs.escape import create_sentence
 
         phrases = create_sentence(self.test_text).phrases
-        self.assertFalse(phrases[0].is_accept)
-        self.assertTrue(phrases[1].is_accept)
-        self.assertTrue(phrases[2].is_accept)
-        self.assertTrue(phrases[3].is_accept)
-        self.assertFalse(phrases[4].is_accept)
+        self.assertFalse(phrases[0].is_accepted)
+        self.assertTrue(phrases[1].is_accepted)
+        self.assertTrue(phrases[2].is_accepted)
+        self.assertTrue(phrases[3].is_accepted)
+        self.assertFalse(phrases[4].is_accepted)
 
     def test_some_accepte_phrases(self):
         """トリプルクォートが複数ある場合に
@@ -131,7 +152,7 @@ class CreateSentenceTest(TestCase):
 
         phrases = create_sentence(self.test_text2).phrases
         for phrase in phrases:
-            if phrase.is_accept:
+            if phrase.is_accepted:
                 self.assertEqual(phrase.text, self.confirm_texts.popleft())
 
 

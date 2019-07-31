@@ -6,11 +6,11 @@ class Phrase:
     """語句を表す
 
     Attributes:
-        is_accept: エスケープを許容するかどうか(bool)
+        is_accepted: エスケープを許容するかどうか(bool)
         text: 語句本体(str)
     """
     def __init__(self, text=''):
-        self.is_accept = False
+        self.is_accepted = False
         self.text = text
 
 
@@ -27,7 +27,13 @@ class Sentence:
         return self._phrases
 
     def set_phrase(self, phrase):
-        self._phrases.append(phrase)
+        if isinstance(phrase, str):
+            _phrase = Phrase(phrase)
+        elif isinstance(phrase, Phrase):
+            _phrase = phrase
+        else:
+            raise ValueError('phrase must be str or Phrase instance')
+        self._phrases.append(_phrase)
 
 
 def create_sentence(text):
@@ -42,28 +48,29 @@ def create_sentence(text):
 
     result_iter = re.finditer('```', text)
 
+    # phraseの間に```を入れるために準備
+    quot_phrase = Phrase('```')
+    quot_phrase.is_accepted = True
     for result in result_iter:
         result_start_i, result_end_i = result.span()
 
         phrase = Phrase(text[current_i:result_start_i])
         if phrase_count % 2 == 0:
             # 偶数の場合エスケープ対象
-            phrase.is_accept = False
+            phrase.is_accepted = False
         else:
             # 奇数の場合エスケープ対象外
-            phrase.is_accept = True
+            phrase.is_accepted = True
         sentence.set_phrase(phrase)
 
         phrase_count += 1
         current_i = result_end_i
 
         # Phraseの間に```を入れる
-        quot_phrase = Phrase('```')
-        quot_phrase.is_accept = True
         sentence.set_phrase(quot_phrase)
 
     end_phrase = Phrase(text[current_i:])
-    end_phrase.is_accept = False
+    end_phrase.is_accepted = False
     sentence.set_phrase(end_phrase)
 
     return sentence
@@ -85,8 +92,7 @@ def str_trans(text, d):
     if len([k for k in d.keys() if len(k) > 1]) > 0:
         raise ValueError('key mast be one size')
 
-    text = text.translate(str.maketrans(d))
-    return text
+    return text.translate(str.maketrans(d))
 
 
 class Translater:
@@ -176,7 +182,7 @@ class HtmlAccepter(Translater):
 
         unescaped_text = ''
         for phrase in sentence.phrases:
-            if phrase.is_accept:
+            if phrase.is_accepted:
                 unescaped_text += phrase.text
             else:
                 unescaped_text += self.translate(phrase.text)
@@ -192,8 +198,7 @@ def escape_html(text):
         '"': '&quot;',
         '\'': '&#39;'
     }
-    escaped_text = str_trans(text, d)
-    return escaped_text
+    return str_trans(text, d)
 
 
 def escape_html_filter(text):
@@ -210,7 +215,7 @@ def escape_html_filter(text):
 
     escaped_text = ''
     for phrase in sentence.phrases:
-        if phrase.is_accept:
+        if phrase.is_accepted:
             escaped_text += phrase.text
         else:
             escaped_text += escape_html(phrase.text)
@@ -222,18 +227,14 @@ def _create_escape_filters(*accept_texts):
 
     エスケープやアンエスケープ処理を行う関数のリストを返す
     """
-    filters = []
-
     # Html特殊文字をエスケープするフィルター
-    filters.append(escape_html_filter)
+    yield escape_html_filter
 
     # 許容されたHtmlタグはアンエスケープするフィルター
     if accept_texts:
         accepter = HtmlAccepter()
         accepter.accepts(*accept_texts)
-        filters.append(accepter.unescape_html_filter)
-
-    return filters
+        yield accepter.unescape_html_filter
 
 
 def escape_markdown(text, *accept_texts):
