@@ -17,13 +17,13 @@
             {% endif %}
         </div>
         <div class="row">
-            <div class="col-md-12 col-lg-12">
+            <div class="col-md-12 col-lg-12 title">
                 <h1>{{ article.title }}</h1>
             </div>
         </div>
-        <hr>
-        <br>
-        {{ article.text | markdown_to_html }}
+        <div class="markdown">
+            {{ article.text | markdown_to_html }}
+        </div>
     </div>
 
     <!-- highlight.js -->

@@ -127,6 +127,7 @@ logger.debug(f"static_root: {STATIC_ROOT}")
 # markdown
 MARKDOWNX_MARKDOWN_EXTENSIONS = [
     'markdown.extensions.extra',
+    'markdown.extensions.toc',
 ]
 
 # media
