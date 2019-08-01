@@ -403,9 +403,6 @@ class HtmlAccepterTest(TestCase):
         But li will unescape.
         '''
 
-        # タグをエスケープする
-        test_text = escape_html(test_text)
-
         # 無害なhtmlをアンエスケープする
         acceptation.accepts('br', 'ul', 'li')
         result = acceptation.unescape_html_filter(test_text)
