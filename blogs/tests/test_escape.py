@@ -443,21 +443,25 @@ class EscapeHtmlTest(TestCase):
         from blogs.escape import escape_html
 
         test_text = '''以下の文字のうちタグになるものを全てエスケープされます。
+        &これは最初にエスケープされます。
         テスト <br>
         "ダブルクォート"や
         'シングルクォート'もエスケープされます。
         <ul>
             <li>test1</li>
         </ul>
+        &これは最初にエスケープされます。
         '''
         result_text = escape_html(test_text)
         confirm_text = '''以下の文字のうちタグになるものを全てエスケープされます。
+        &amp;これは最初にエスケープされます。
         テスト &lt;br&gt;
         &quot;ダブルクォート&quot;や
         &#39;シングルクォート&#39;もエスケープされます。
         &lt;ul&gt;
             &lt;li&gt;test1&lt;/li&gt;
         &lt;/ul&gt;
+        &amp;これは最初にエスケープされます。
         '''
         self.assertEquals(result_text, confirm_text)
 
