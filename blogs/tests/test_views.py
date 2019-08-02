@@ -308,6 +308,23 @@ class ArticleEditViewTest(TestCase):
         confirm_redirect = '/login/?next=%2Fedit%2F' + str(self.id) + '/'
         self.assertRedirects(response, confirm_redirect)
 
+    def test_not_author_edit_get(self):
+        """投稿者でないユーザーがgetリクエスト投げた場合のテスト"""
+        not_author = User.objects.create_user(
+            email='test2@test.com',
+            password='testpass'
+        )
+        not_author.is_active = True
+        not_author.save()
+
+        # ログイン
+        self.client.login(email='test2@test.com', password='testpass')
+        # getリクエストを投げる
+        response = self.client.get(self.url)
+
+        # ステータス400
+        self.assertEqual(response.status_code, 400)
+
     def test_ok_get(self):
         """getリクエストが成功する場合のテスト"""
         # ログイン
