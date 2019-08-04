@@ -18,7 +18,7 @@ from django.views import generic
 from blogs.models import Article
 from users.forms import (
     LoginForm, MyPasswordResetForm, MySetPasswordForm, ProfileEditForm,
-    UserCreateForm,
+    ProfileImageForm, UserCreateForm,
 )
 from users.models import Profile
 
@@ -49,6 +49,27 @@ class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
     model = Profile
     form_class = ProfileEditForm
     template_name = 'users/profile_edit.html'
+
+    def get_object(self):
+        """URLにpkを含まないため"""
+        return Profile.objects.get(user=self.request.user)
+
+
+class ProfileImageEditView(LoginRequiredMixin, generic.UpdateView):
+    """プロフィール画像の編集"""
+    model = Profile
+    form_class = ProfileImageForm
+    template_name = 'users/profile_image_edit.html'
+
+    def form_valid(self, form):
+        profile = Profile.objects.get(user=self.request.user)
+        # 更新前の画像を削除
+        if profile.image:
+            profile.image.delete(save=False)
+        # プロフィール画像の保存
+        profile.image = form.instance.image
+        profile.save()
+        return super(generic.UpdateView, self).form_valid(form)
 
     def get_object(self):
         """URLにpkを含まないため"""

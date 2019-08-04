@@ -9,6 +9,7 @@ from users.views import (
     PasswordResetComplete,
     ProfileView,
     ProfileEditView,
+    ProfileImageEditView,
     UserCreateView,
     UserCreateDoneView,
     UserCreateCompleteView,
@@ -23,11 +24,12 @@ urlpatterns = [
     path('profile/<name>/', ProfileView.as_view(), name='profile'),
     path('profile/<name>/edit/',
          ProfileEditView.as_view(), name='profile_edit'),
+    path('profile/<name>/image/edit/',
+         ProfileImageEditView.as_view(), name='profile_image_edit'),
 
     # User login
     path('login/', Login.as_view(), name='login'),
     path('logout/', Logout.as_view(), name='logout'),
-
     # User create
     path('user_create/', UserCreateView.as_view(), name='user_create'),
     path('user_create/done/',
