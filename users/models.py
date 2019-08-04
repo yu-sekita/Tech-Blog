@@ -110,7 +110,7 @@ class Profile(models.Model):
     )
     link = models.CharField('Link', max_length=255, blank=True)
     hobby = models.CharField('Hobby', max_length=255, blank=True)
-    image = models.ImageField(upload_to='media/profile', blank=True)
+    image = models.ImageField(upload_to='profile', blank=True)
 
     def __str__(self):
         return self.user_name

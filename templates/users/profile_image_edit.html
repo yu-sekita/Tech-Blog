@@ -1,11 +1,11 @@
 {% extends 'users/users_base.html' %}
 
-{% block title %} Profile Edit {% endblock %}
+{% block title %} Profile Image Edit {% endblock %}
 
 {% block content %}
 <div class="container" style="margin-top: 100px; margin-bottom: 100px">
     <div class="col-md-6 offset-md-3">
-        <form action="" method="POST"">
+        <form action="" method="POST" enctype="multipart/form-data">
             {{ form.non_field_errors }}
             {% for field in form %}
             <div class="form-group">
@@ -16,7 +16,7 @@
             {% endfor %}
             {% csrf_token %}
 
-            <button type="submit" class="btn btn-success btn-lg">Modify</button>
+            <button type="submit" class="btn btn-success btn-lg">upload</button>
         </form>
     </div>
     <a href="{% url 'users:profile' profile.user_name %}" class="btn btn-light">
