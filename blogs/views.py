@@ -3,6 +3,7 @@ from django.views import generic
 from django.contrib.auth.mixins import LoginRequiredMixin
 from blogs.escape import escape_markdown
 from blogs.forms import ArticleForm
+from django.http import HttpResponseBadRequest
 from blogs.models import Article
 from users.models import Profile
 
@@ -89,6 +90,13 @@ class ArticleEditView(LoginRequiredMixin, generic.UpdateView):
     model = Article
     form_class = ArticleForm
     template_name = 'blogs/article_edit.html'
+
+    def get(self, request, *args, **kwargs):
+        """投稿者でないユーザがgetリクエスト投げたらエラーを返す"""
+        author = Article.objects.get(pk=kwargs['pk']).author
+        if self.request.user == author:
+            return super().get(self, request, *args, **kwargs)
+        return HttpResponseBadRequest()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

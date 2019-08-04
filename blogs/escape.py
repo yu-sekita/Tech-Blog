@@ -193,6 +193,7 @@ class HtmlAccepter(Translater):
 def escape_html(text):
     """Htmlのタグなどをエスケープする"""
     d = {
+        '&': '&amp;',
         '<': '&lt;',
         '>': '&gt;',
         '"': '&quot;',
