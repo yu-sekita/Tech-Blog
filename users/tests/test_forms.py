@@ -1,4 +1,7 @@
+import io
+
 from django.test import TestCase
+from PIL import Image
 
 
 class UserCreateFormTest(TestCase):
@@ -94,10 +97,16 @@ class ProfileImageFormTest(TestCase):
     """プロフィール画像用フォームのテスト"""
     def test_update_success(self):
         """更新成功"""
-        from users.forms import ProfileImageFormTest
+        from users.forms import ProfileImageForm
 
+        # 画像の準備
+        profile_file = io.BytesIO()
+        profile_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        profile_image.save(profile_file, 'png')
+        profile_file.name = 'ProfileImageEditViewTest_test_ok_post.png'
+        profile_file.seek(0)
         form_data = {
-            'image': 'test.jpg',
+            'image': profile_file,
         }
-        form = ProfileEditForm(data=form_data)
+        form = ProfileImageForm(data=form_data)
         self.assertTrue(form.is_valid())
