@@ -1,0 +1,34 @@
+.profile-img {
+    margin: 0px 0px 40px 0px;
+}
+
+.profile-img img {
+    border-radius: 50%;
+    width:    150px;
+    height:   150px;
+    border:   solid 5px #ffffff;
+    overflow: hidden;
+    position: relative;
+}
+
+.profile-img .caption {
+	font-size:   130%;
+	text-align:  center;
+	color:       #fff;
+}
+
+.profile-img .mask {
+	width:    180px;
+	height:   30px;
+	position: absolute;
+	top:      1;
+	left:     0;
+	opacity:  0;
+	background-color: rgba(0,0,0,0.4);
+	-webkit-transition: all 0.2s ease;
+	transition: all 0.2s ease;
+}
+
+.profile-img:hover .mask {
+	opacity: 1;
+}

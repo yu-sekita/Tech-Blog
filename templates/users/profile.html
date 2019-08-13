@@ -1,5 +1,7 @@
 {% extends 'users/users_base.html' %}
 
+{% load static %}
+
 {% block title %} profile {% endblock %}
 
 {% block navbar %}
@@ -10,12 +12,16 @@
 <!-- edit profile here -->
 <div class="container" style="margin-top: 100px; margin-bottom: 100px;">
     <div class="row">
-        <div class="col-md-3 col-lg-3">
-            <h3 style="margin: 20px 0px 20px 0px;">Proflie</h3>
-        </div>
-        <div class="col-md-9 col-lg-9" style="margin: 20px 0px 20px 0px;">
-            <a href="{% url 'users:profile_edit' profile.user_name %}" class="btn btn-secondary">
-                <i class="far fa-edit" style="margin-right: 4px;"></i>Edit
+        <div class="col-md-3 col-lg-3 profile-img">
+            <a href="{% url 'users:profile_image_edit' profile.user_name %}">
+                {% if profile.image %}
+                <img src="{{ profile.image.url }}">
+                {% else %}
+                <img src="{% static 'users/img/default.jpg' %}">
+                {% endif %}
+                <div class="mask">
+                    <div class="caption">Edit</div>
+                </div>
             </a>
         </div>
 
@@ -49,28 +55,39 @@
         </div>
     </div>
 
+    <div class="row mt-3 mb-5">
+        <div class="col-md-3 col-lg-3"></div>
+        <div class="col-md-9 col-lg-9">
+            <a href="{% url 'users:profile_edit' profile.user_name %}" class="btn btn-secondary">
+                <i class="far fa-edit" style="margin-right: 4px;"></i>Edit Profile
+            </a>
+        </div>
+    </div>
+
     <div class="row">
-        <div class="col-md-12 col-lg-12">
+        <div class="col-md-12 ">
             <h3 style="margin-top: 20px; margin-bottom: 20px;">Articles</h3>
         </div>
-        <div class="col-md-10 col-lg-10">
+        <div class="col-md-12 col-lg-12">
             <table class="table table-striped">
                 <thead>
                     <tr>
                         <th style="width: 15%;">#</th>
-                        <th style="width: 60%;">title</th>
-                        <th style="width: 10%;"></th>
-                        <th style="width: 15%;"></th>
+                        <th style="width: 70%;">title</th>
+                        <th style="width: 5%;"></th>
+                        <th style="width: 5%;"></th>
+                        <th style="width: 5%;"></th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for article in articles %}
                     <tr>
                         <td style="width: 15%;">{{ article.created_at|date:'Y/n/j' }}</td>
-                        <td style="width: 60%;">{{ article.title }}</td>
-                        <td style="width: 10%;"><a href="{% url 'blogs:article_detail' article.pk %}" class="btn btn-info">View</a></td>
-                        <td style="width: 15%;"><a href="{% url 'blogs:article_edit' article.pk %}" class="btn btn-secondary">
-                            <i class="far fa-edit" style="margin-right: 4px;"></i>Edit</a></td>
+                        <td style="width: 70%;">{{ article.title }}</td>
+                        <td style="width: 5%;"><a href="{% url 'blogs:article_detail' article.pk %}" class="btn btn-info">View</a></td>
+                        <td style="width: 5%;"><a href="{% url 'blogs:article_edit' article.pk %}" class="btn btn-secondary">Edit</a></td>
+                            <td style="width: 5%;"><a href="#" class="btn btn-danger">
+                                Delete</a></td>
                     </tr>
                     {% endfor %}
                 </tbody>

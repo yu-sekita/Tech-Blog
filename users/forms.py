@@ -71,3 +71,16 @@ class ProfileEditForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+
+
+class ProfileImageForm(forms.ModelForm):
+    """プロフィール編集用フォーム"""
+
+    class Meta:
+        model = Profile
+        fields = ('image', )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            field.widget.attrs['class'] = 'form-control'

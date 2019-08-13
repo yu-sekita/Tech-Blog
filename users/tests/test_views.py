@@ -1,9 +1,14 @@
+import io
+import sys
+
 from django.contrib.auth.tokens import default_token_generator
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.template.loader import get_template
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_encode
+from PIL import Image
 
 from blogs.models import Article
 from users.models import Profile
@@ -155,6 +160,169 @@ class ProfileViewTest(TestCase):
             response.context['articles'][0].title,
             'test title'
         )
+
+
+class ProfileImageEditViewTest(TestCase):
+    """プロフィール編集viewのテスト"""
+    def setUp(self):
+        # ユーザとプロフィールを作成
+        from django.contrib.auth import get_user_model
+        self.user = get_user_model().objects.create_user(
+            email='test@test.com',
+            password='password'
+        )
+        self.user.is_active = True
+        self.user.save()
+
+        profile = Profile.objects.create(
+            user=self.user,
+            user_name='Taro-Tanaka',
+            hobby='Camp',
+        )
+        profile.save()
+
+        # URLを作成
+        self.url = reverse(
+            'users:profile_image_edit',
+            kwargs={'name': 'Taro-Tanaka'}
+        )
+
+    def test_not_login_get(self):
+        """未ログイン時でgetリクエストした時のテスト"""
+        response = self.client.get(self.url)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # テンプレートprofile_edit.html
+        next_page = '/login/?next=%2Fprofile%2FTaro-Tanaka%2Fimage%2Fedit%2F'
+        self.assertRedirects(response, next_page)
+
+    def test_ok_get(self):
+        """getリクエスト時のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='password')
+
+        response = self.client.get(self.url)
+
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # テンプレートprofile_edit.html
+        self.assertTemplateUsed(response, 'users/profile_image_edit.html')
+
+    def test_not_login_post(self):
+        """未ログイン時でpostリクエストした時のテスト"""
+        form_data = {
+            'image': 'test.jpg',
+        }
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # テンプレートprofile_edit.html
+        next_page = '/login/?next=%2Fprofile%2FTaro-Tanaka%2Fimage%2Fedit%2F'
+        self.assertRedirects(response, next_page)
+
+    def test_post_no_data(self):
+        """postリクエスト時にデータが無い場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='password')
+
+        form_data = {}
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # テンプレートprofile_image_edit.html
+        self.assertTemplateUsed(response, 'users/profile_image_edit.html')
+
+    def test_jpeg_post(self):
+        """postリクエスト時、jpeg画像で更新可能である場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='password')
+
+        # 画像の準備
+        profile_file = io.BytesIO()
+        profile_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        profile_image = profile_image.convert('RGB')
+        profile_image.save(profile_file, format='JPEG')
+        profile_file.name = 'ProfileImageEditViewTest_test_jpeg_post.jpg'
+        profile_file.seek(0)
+        form_data = {
+            'image': profile_file
+        }
+
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトusers:profile
+        self.assertRedirects(response, '/profile/Taro-Tanaka/')
+        # imageが更新されている
+        profile = Profile.objects.get(user=self.user)
+        self.assertEqual(profile.image.name, 'profile/' + profile_file.name)
+
+        # 確認後画像を削除
+        profile.image.delete()
+
+    def test_png_post(self):
+        """postリクエスト時、png画像で更新可能である場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='password')
+
+        # 画像の準備
+        profile_file = io.BytesIO()
+        profile_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        profile_image = profile_image.convert('P')
+        profile_image.save(profile_file, format='png')
+        profile_file.name = 'ProfileImageEditViewTest_test_png_post.png'
+        profile_file.seek(0)
+        form_data = {
+            'image': profile_file
+        }
+
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトusers:profile
+        self.assertRedirects(response, '/profile/Taro-Tanaka/')
+        # imageが更新されている
+        profile = Profile.objects.get(user=self.user)
+        self.assertEqual(profile.image.name, 'profile/' + profile_file.name)
+
+        # 確認後画像を削除
+        profile.image.delete()
+
+    def test_clear_post(self):
+        """postリクエスト時、クリアの場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='password')
+
+        # 先に画像を保存しておく必要があるため用意
+        profile_file = io.BytesIO()
+        profile_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        profile_image = profile_image.convert('P')
+        profile_image.save(profile_file, format='png')
+        profile_file.name = 'ProfileImageEditViewTest_test_clear_post.png'
+        profile_file.seek(0)
+        form_data = {
+            'image': profile_file
+        }
+        response = self.client.post(self.url, data=form_data)
+
+        # クリアでpost
+        form_data = {
+            'image-clear': 'on'
+        }
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトusers:profile
+        self.assertRedirects(response, '/profile/Taro-Tanaka/')
+        # imageが更新されている
+        profile = Profile.objects.get(user=self.user)
+        self.assertEqual(profile.image.name, '')
 
 
 class ProfileEditViewTest(TestCase):
