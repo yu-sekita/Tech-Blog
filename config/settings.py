@@ -41,12 +41,14 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
     'blogs',
     'users',
     'bootstrap4',
     'markdownx',
     'django.forms',
+    'cloudinary',
 ]
 
 MIDDLEWARE = [
@@ -170,6 +172,14 @@ else:
 
     # STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
     del STATICFILES_STORAGE
+
+    # cloudinary
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': env('CLOUD_NAME'),
+        'API_KEY': env('CLOUD_API_KEY'),
+        'API_SECRET': env('CLOUD_API_SECRET'),
+    }
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
     ALLOWED_HOSTS.append(env('ALLOWED_HOSTS'))
 
