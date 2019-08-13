@@ -1,6 +1,8 @@
 import io
+import sys
 
 from django.contrib.auth.tokens import default_token_generator
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.template.loader import get_template
 from django.test import TestCase
 from django.urls import reverse
@@ -229,23 +231,24 @@ class ProfileImageEditViewTest(TestCase):
         response = self.client.post(self.url, data=form_data)
 
         # ステータス200
-        self.assertEqual(response.status_code, 302)
-        # リダイレクトprofile_edit.html
-        self.assertRedirects(response, '/profile/Taro-Tanaka/')
+        self.assertEqual(response.status_code, 200)
+        # テンプレートprofile_image_edit.html
+        self.assertTemplateUsed(response, 'users/profile_image_edit.html')
 
-    def test_ok_post(self):
-        """postリクエスト時、更新可能である場合のテスト"""
+    def test_jpeg_post(self):
+        """postリクエスト時、jpeg画像で更新可能である場合のテスト"""
         # ログイン
         self.client.login(email='test@test.com', password='password')
 
         # 画像の準備
         profile_file = io.BytesIO()
         profile_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
-        profile_image.save(profile_file, 'png')
-        profile_file.name = 'ProfileImageEditViewTest_test_ok_post.png'
+        profile_image = profile_image.convert('RGB')
+        profile_image.save(profile_file, format='JPEG')
+        profile_file.name = 'ProfileImageEditViewTest_test_ok_post.jpg'
         profile_file.seek(0)
         form_data = {
-            'image': profile_file,
+            'image': profile_file
         }
 
         response = self.client.post(self.url, data=form_data)
@@ -257,6 +260,36 @@ class ProfileImageEditViewTest(TestCase):
         # imageが更新されている
         profile = Profile.objects.get(user=self.user)
         self.assertEqual(profile.image.name, 'profile/' + profile_file.name)
+
+        # 確認後画像を削除
+        profile.image.delete()
+
+    def test_png_post(self):
+        """postリクエスト時、png画像で更新可能である場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='password')
+
+        # 画像の準備
+        profile_file = io.BytesIO()
+        profile_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        profile_image = profile_image.convert('RGB')
+        profile_image.save(profile_file, format='png')
+        profile_file.name = 'ProfileImageEditViewTest_test_ok_post.png'
+        confirm_file_name = 'ProfileImageEditViewTest_test_ok_post.jpg'
+        profile_file.seek(0)
+        form_data = {
+            'image': profile_file
+        }
+
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトusers:profile
+        self.assertRedirects(response, '/profile/Taro-Tanaka/')
+        # imageが更新されている
+        profile = Profile.objects.get(user=self.user)
+        self.assertEqual(profile.image.name, 'profile/' + confirm_file_name)
 
         # 確認後画像を削除
         profile.image.delete()
