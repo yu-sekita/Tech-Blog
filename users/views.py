@@ -92,18 +92,24 @@ class ProfileImageEditView(LoginRequiredMixin, generic.UpdateView):
 
     def _image_resize(self, image, size):
         """画像を指定のサイズにリサイズする関数"""
+        # 画像のフォーマットを取得
+        im_format = image.name.split('.')[1]
+
         im = Image.open(image)
         im = im.resize(size, Image.LANCZOS)
 
         output_file = io.BytesIO()
-        im.save(output_file, format='JPEG')
+        if im_format == 'png':
+            im.save(output_file, format='PNG')
+        else:
+            im.save(output_file, format='JPEG')
         output_file.seek(0)
 
         return InMemoryUploadedFile(
             output_file,
             'ImageField',
-            '%s.jpg' % image.name.split('.')[0],
-            'image/jpeg',
+            image.name,
+            'image/%s' % im_format,
             sys.getsizeof(output_file),
             None
         )
@@ -112,7 +118,7 @@ class ProfileImageEditView(LoginRequiredMixin, generic.UpdateView):
         """画像を削除"""
         profile = Profile.objects.get(user=self.request.user)
         if profile.image:
-            profile.image.delete(save=False)
+            profile.image.delete()
             profile.save()
 
 

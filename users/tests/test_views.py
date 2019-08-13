@@ -245,7 +245,7 @@ class ProfileImageEditViewTest(TestCase):
         profile_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
         profile_image = profile_image.convert('RGB')
         profile_image.save(profile_file, format='JPEG')
-        profile_file.name = 'ProfileImageEditViewTest_test_ok_post.jpg'
+        profile_file.name = 'ProfileImageEditViewTest_test_jpeg_post.jpg'
         profile_file.seek(0)
         form_data = {
             'image': profile_file
@@ -272,10 +272,9 @@ class ProfileImageEditViewTest(TestCase):
         # 画像の準備
         profile_file = io.BytesIO()
         profile_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
-        profile_image = profile_image.convert('RGB')
+        profile_image = profile_image.convert('P')
         profile_image.save(profile_file, format='png')
-        profile_file.name = 'ProfileImageEditViewTest_test_ok_post.png'
-        confirm_file_name = 'ProfileImageEditViewTest_test_ok_post.jpg'
+        profile_file.name = 'ProfileImageEditViewTest_test_png_post.png'
         profile_file.seek(0)
         form_data = {
             'image': profile_file
@@ -289,10 +288,41 @@ class ProfileImageEditViewTest(TestCase):
         self.assertRedirects(response, '/profile/Taro-Tanaka/')
         # imageが更新されている
         profile = Profile.objects.get(user=self.user)
-        self.assertEqual(profile.image.name, 'profile/' + confirm_file_name)
+        self.assertEqual(profile.image.name, 'profile/' + profile_file.name)
 
         # 確認後画像を削除
         profile.image.delete()
+
+    def test_clear_post(self):
+        """postリクエスト時、クリアの場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='password')
+
+        # 先に画像を保存しておく必要があるため用意
+        profile_file = io.BytesIO()
+        profile_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        profile_image = profile_image.convert('P')
+        profile_image.save(profile_file, format='png')
+        profile_file.name = 'ProfileImageEditViewTest_test_clear_post.png'
+        profile_file.seek(0)
+        form_data = {
+            'image': profile_file
+        }
+        response = self.client.post(self.url, data=form_data)
+
+        # クリアでpost
+        form_data = {
+            'image-clear': 'on'
+        }
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトusers:profile
+        self.assertRedirects(response, '/profile/Taro-Tanaka/')
+        # imageが更新されている
+        profile = Profile.objects.get(user=self.user)
+        self.assertEqual(profile.image.name, '')
 
 
 class ProfileEditViewTest(TestCase):
