@@ -1,3 +1,6 @@
+import io
+import sys
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -6,6 +9,7 @@ from django.contrib.auth.views import (
     PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView,
 )
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.core.signing import (
     BadSignature, dumps, loads, SignatureExpired,
 )
@@ -14,6 +18,7 @@ from django.shortcuts import redirect
 from django.template.loader import get_template
 from django.urls import reverse, reverse_lazy
 from django.views import generic
+from PIL import Image
 
 from blogs.models import Article
 from users.forms import (
@@ -62,18 +67,59 @@ class ProfileImageEditView(LoginRequiredMixin, generic.UpdateView):
     template_name = 'users/profile_image_edit.html'
 
     def form_valid(self, form):
-        profile = Profile.objects.get(user=self.request.user)
+        # formにデータがない場合は再表示
+        if form.cleaned_data['image'] is None:
+            return super().get(self.request)
+
+        # クリアなら画像削除後そのまま親に渡す
+        if 'image-clear' in form.data and form.data['image-clear'] == 'on':
+            self._del_image()
+            return super(generic.UpdateView, self).form_valid(form)
+
+        # 画像のリサイズ
+        form.instance.image = self._image_resize(
+            image=form.instance.image,
+            size=(480, 480)
+        )
         # 更新前の画像を削除
-        if profile.image:
-            profile.image.delete(save=False)
-        # プロフィール画像の保存
-        profile.image = form.instance.image
-        profile.save()
+        self._del_image()
+
         return super(generic.UpdateView, self).form_valid(form)
 
     def get_object(self):
         """URLにpkを含まないため"""
         return Profile.objects.get(user=self.request.user)
+
+    def _image_resize(self, image, size):
+        """画像を指定のサイズにリサイズする関数"""
+        # 画像のフォーマットを取得
+        im_format = image.name.split('.')[1]
+
+        im = Image.open(image)
+        im = im.resize(size, Image.LANCZOS)
+
+        output_file = io.BytesIO()
+        if im_format == 'png':
+            im.save(output_file, format='PNG')
+        else:
+            im.save(output_file, format='JPEG')
+        output_file.seek(0)
+
+        return InMemoryUploadedFile(
+            output_file,
+            'ImageField',
+            image.name,
+            'image/%s' % im_format,
+            sys.getsizeof(output_file),
+            None
+        )
+
+    def _del_image(self):
+        """画像を削除"""
+        profile = Profile.objects.get(user=self.request.user)
+        if profile.image:
+            profile.image.delete()
+            profile.save()
 
 
 class Login(LoginView):
