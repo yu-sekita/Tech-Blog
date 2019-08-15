@@ -18,12 +18,12 @@ ACCEPT_TAGS = [
 def _set_full_name(context, user):
     """ユーザーのフルネームがあればコンテキストに設定"""
     if user is None:
-        context['name'] = ''
+        context['user_name'] = ''
         return context
     if user.is_authenticated:
         profile = Profile.objects.get(user=user)
         name = profile.user_name
-        context['name'] = name if name is not None else ''
+        context['user_name'] = name if name is not None else ''
         return context
 
 
@@ -42,7 +42,7 @@ class ArticleListView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # ユーザーのフルネーム
+        # ナブバー設定用ユーザーのフルネーム
         _set_full_name(context, self.request.user)
         return context
 
@@ -64,7 +64,7 @@ class ArticleCreateView(LoginRequiredMixin, generic.CreateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # ユーザーのフルネーム
+        # ナブバー設定用ユーザーのフルネーム
         _set_full_name(context, self.request.user)
         return context
 
@@ -77,8 +77,12 @@ class ArticleDetailView(generic.DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # ユーザーのフルネーム
+        # ナブバー設定用ユーザーのフルネーム
         _set_full_name(context, self.request.user)
+
+        # プロフィール表示用の投稿者の名前
+        profile = Profile.objects.get(user=kwargs['object'].author)
+        context['create_user_name'] = profile.user_name
 
         # ログインユーザ
         context['login_user'] = self.request.user
@@ -100,7 +104,7 @@ class ArticleEditView(LoginRequiredMixin, generic.UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # ユーザーのフルネーム
+        # ナブバー設定用ユーザーのフルネーム
         _set_full_name(context, self.request.user)
         return context
 

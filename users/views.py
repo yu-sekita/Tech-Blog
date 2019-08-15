@@ -40,11 +40,20 @@ class ProfileView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
 
         # プロフィール情報
-        profile = Profile.objects.get(user=self.request.user)
+        profile = Profile.objects.get(user_name=kwargs['name'])
         context['profile'] = profile
 
+        # ログインユーザ情報
+        user = self.request.user
+        if user.is_authenticated:
+            context['login_user'] = user
+
+        # ログインユーザの名前
+        user_name = Profile.objects.get(user=self.request.user).user_name
+        context['user_name'] = user_name
+
         # ユーザが投稿した記事
-        articles = Article.objects.filter(author=self.request.user)
+        articles = Article.objects.filter(author=profile.user)
         context['articles'] = articles
         return context
 
@@ -157,7 +166,7 @@ class UserCreateView(generic.CreateView):
         # プロフィールも一緒に作成
         profile = Profile.objects.create(
             user=user,
-            user_name=form.cleaned_data['user_name'])
+            user_name=form.cleaned_data['email'])
         profile.save()
 
         # アクティベーションURLの送付

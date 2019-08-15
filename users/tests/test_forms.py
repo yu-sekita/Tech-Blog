@@ -44,7 +44,6 @@ class UserCreateFormTest(TestCase):
 
         form_data = {
             'email': 'test@test.com',
-            'user_name': 'Taro-Tanaka',
             'password1': 'test_password',
             'password2': 'test_password',
         }
