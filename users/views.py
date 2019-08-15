@@ -79,7 +79,7 @@ class ProfileImageEditView(LoginRequiredMixin, generic.UpdateView):
         # 画像のリサイズ
         form.instance.image = self._image_resize(
             image=form.instance.image,
-            size=(480, 480)
+            size=(150, 150)
         )
         # 更新前の画像を削除
         self._del_image()
