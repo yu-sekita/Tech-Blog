@@ -81,7 +81,10 @@ class ProfileTest(TestCase):
 
     def test_registed(self):
         """データが作られた場合のテスト"""
-        user = self.User.objects.create(email='test@test.com', password='testpass')
+        user = self.User.objects.create(
+            email='test@test.com',
+            password='testpass'
+        )
         Profile.objects.create(
             user=user,
             user_name='Taro-Tanaka',
@@ -98,7 +101,10 @@ class ProfileTest(TestCase):
 
     def test_absolute_url(self):
         """更新完了時の戻り先URLを正しく取得できることの確認"""
-        user = self.User.objects.create(email='test@test.com', password='testpass')
+        user = self.User.objects.create(
+            email='test@test.com',
+            password='testpass'
+        )
         Profile.objects.create(
             user=user,
             user_name='Taro-Tanaka',
