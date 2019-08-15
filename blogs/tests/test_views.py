@@ -20,7 +20,7 @@ class SetFullNameTest(TestCase):
         """ユーザーがいない時の確認"""
         context = {}
         _set_full_name(context, None)
-        self.assertEqual(context.get('name'), '')
+        self.assertEqual(context.get('user_name'), '')
 
     def test_no_username(self):
         """フルネームがないユーザーの確認"""
@@ -32,7 +32,7 @@ class SetFullNameTest(TestCase):
 
         context = {}
         _set_full_name(context, user)
-        self.assertEqual(context.get('name'), '')
+        self.assertEqual(context.get('user_name'), '')
 
     def test_with_fullname(self):
         """フルネームがあるプロフィールの確認"""
@@ -45,7 +45,7 @@ class SetFullNameTest(TestCase):
 
         context = {}
         _set_full_name(context, user)
-        self.assertEqual(context.get('name'), 'testname')
+        self.assertEqual(context.get('user_name'), 'testname')
 
 
 class ArticleListViewTest(TestCase):
@@ -110,16 +110,13 @@ class ArticleListViewTest(TestCase):
         """作成日時の降順で出力されることの確認"""
         # 一番新しい記事
         time = timezone.now() + datetime.timedelta(days=30)
-        article1 = Article.objects.create(
-            title='first', text='1', created_at=time)
+        Article.objects.create(title='first', text='1', created_at=time)
         # 一番古い記事
         time = timezone.now() + datetime.timedelta(days=10)
-        article2 = Article.objects.create(
-            title='third', text='3', created_at=time)
+        Article.objects.create(title='third', text='3', created_at=time)
         # ２番目に新しい記事
         time = timezone.now() + datetime.timedelta(days=20)
-        article3 = Article.objects.create(
-            title='second', text='2', created_at=time)
+        Article.objects.create(title='second', text='2', created_at=time)
 
         response = self.client.get(reverse('blogs:index'))
         result = response.context['articles']
@@ -236,7 +233,7 @@ class ArticleCreateViewTest(TestCase):
         profile = Profile.objects.create(user=user, user_name='testname')
         profile.save()
 
-        response = self.client.post(reverse('blogs:article_create'), data=data)
+        self.client.post(reverse('blogs:article_create'), data=data)
 
         # textはエスケープされてDBに登録されていることの確認
         articles = Article.objects.all()
@@ -247,6 +244,21 @@ class ArticleCreateViewTest(TestCase):
 
 class ArticleDetailViewTest(TestCase):
     """記事の詳細を表示するviewのテスト"""
+    def setUp(self):
+        # ユーザを準備
+        self.user = User.objects.create_user(
+            email='test@test.com',
+            password='test_password'
+        )
+        self.user.is_active = True
+        self.user.save()
+        # プロフィールを準備
+        profile = Profile.objects.create(
+            user=self.user,
+            user_name='testname'
+        )
+        profile.save()
+
     def test_no_data(self):
         """空のデータでget時のテスト"""
         url = reverse('blogs:article_detail', args=(uuid.uuid4(), ))
@@ -256,7 +268,10 @@ class ArticleDetailViewTest(TestCase):
 
     def test_one_data(self):
         """1件のデータがある時のテスト"""
-        article = Article.objects.create(title='test1', text='test text1')
+        article = Article.objects.create(
+            title='test1',
+            text='test text1',
+            author=self.user)
         url = reverse('blogs:article_detail', args=(article.id, ))
 
         response = self.client.get(url)
@@ -265,6 +280,19 @@ class ArticleDetailViewTest(TestCase):
         # テンプレートarticle_detail.html
         self.assertTemplateUsed(response, 'blogs/article_detail.html')
         self.assertContains(response, article.title)
+
+    def test_get_context_data(self):
+        """コンテキストデータが正常に渡されていることの確認"""
+        article = Article.objects.create(
+            title='test1',
+            text='test text1',
+            author=self.user)
+        url = reverse('blogs:article_detail', args=(article.id, ))
+
+        response = self.client.get(url)
+
+        # コンテキスト
+        self.assertTrue(response.context['author_name'] is not None)
 
 
 class ArticleEditViewTest(TestCase):

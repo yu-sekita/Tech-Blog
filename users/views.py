@@ -1,5 +1,6 @@
 import io
 import sys
+import uuid
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -39,12 +40,19 @@ class ProfileView(generic.TemplateView):
         """プロフィール画面に表示する情報を登録"""
         context = super().get_context_data(**kwargs)
 
-        # プロフィール情報
-        profile = Profile.objects.get(user=self.request.user)
+        # ログインユーザ情報
+        login_user = self.request.user
+        if login_user.is_authenticated:
+            context['login_user'] = login_user
+            user_name = Profile.objects.get(user=login_user).user_name
+            context['user_name'] = user_name
+
+        # ユーザ名によるプロフィール情報
+        profile = Profile.objects.get(user_name=kwargs['name'])
         context['profile'] = profile
 
         # ユーザが投稿した記事
-        articles = Article.objects.filter(author=self.request.user)
+        articles = Article.objects.filter(author=profile.user)
         context['articles'] = articles
         return context
 
@@ -54,6 +62,26 @@ class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
     model = Profile
     form_class = ProfileEditForm
     template_name = 'users/profile_edit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        profile = Profile.objects.get(user=self.request.user)
+        context['profile'] = profile
+        return context
+
+    def form_invalid(self, form):
+        form.error_message = 'このユーザ名は既に登録されています。'
+        return super(generic.UpdateView, self).form_invalid(form)
+
+    def form_valid(self, form):
+        # 更新項目にユーザ名を含んでいた場合
+        fm_usrname = form.cleaned_data['user_name']
+        if fm_usrname != Profile.objects.get(user=self.request.user).user_name:
+            # 更新しようとするユーザー名が既に存在したら入力し直す
+            user_names = (p.user_name for p in Profile.objects.all())
+            if fm_usrname in user_names:
+                return self.form_invalid(form)
+        return super(generic.UpdateView, self).form_valid(form)
 
     def get_object(self):
         """URLにpkを含まないため"""
@@ -157,7 +185,8 @@ class UserCreateView(generic.CreateView):
         # プロフィールも一緒に作成
         profile = Profile.objects.create(
             user=user,
-            user_name=form.cleaned_data['user_name'])
+            user_name=str(uuid.uuid4())[:13]
+        )
         profile.save()
 
         # アクティベーションURLの送付

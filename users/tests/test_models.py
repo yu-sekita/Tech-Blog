@@ -3,68 +3,66 @@ from django.test import TestCase
 from django.urls import reverse
 
 from users.models import (
-    GENDER_CHOICES, Profile, User, UserManager
+    GENDER_CHOICES, Profile
 )
 
 
 class UserManagerTest(TestCase):
     """ユーザーマネージャーのテスト"""
+    def setUp(self):
+        self.User = get_user_model()
+
     def test_createuser_mail_blank(self):
         """メールアドレスブランクで登録し、エラーハンドリングされている確認"""
-        User = get_user_model()
         data = {
             'email': '',
             'password': 'test_password'
         }
         with self.assertRaises(ValueError) as error:
-            User.objects.create_user(**data)
+            self.User.objects.create_user(**data)
         error_message = 'The given email must be set'
         self.assertEquals(error.exception.args[0], error_message)
 
     def test_createuser_mail_none(self):
         """メールアドレスなしで登録し、エラーハンドリングされている確認"""
-        User = get_user_model()
         data = {
             'email': None,
             'password': 'test_password'
         }
         with self.assertRaises(ValueError) as error:
-            User.objects.create_user(**data)
+            self.User.objects.create_user(**data)
         error_message = 'The given email must be set'
         self.assertEquals(error.exception.args[0], error_message)
 
     def test_createuser(self):
         """パスワードブランクで登録できることの確認"""
-        User = get_user_model()
         data = {
             'email': 'test@test.com',
             'password': '',
 
         }
-        user = User.objects.create_user(**data)
+        user = self.User.objects.create_user(**data)
         self.assertEqual(user.email, data.get('email'))
 
     def test_createuser_permission_false(self):
         """ユーザー登録時、権限は全てFalseで登録されていることの確認"""
-        User = get_user_model()
         data = {
             'email': 'test@test.com',
             'password': 'test_password'
         }
-        user = User.objects.create_user(**data)
+        user = self.User.objects.create_user(**data)
         self.assertEqual(user.email, data.get('email'))
         self.assertTrue(user.is_active)
         self.assertFalse(user.is_staff)
         self.assertFalse(user.is_superuser)
 
-    def test_createuser_permission_false(self):
+    def test_createuser_permission_true(self):
         """スーパーユーザー登録時、権限は全てTrueで登録されていることの確認"""
-        User = get_user_model()
         data = {
             'email': 'testsuper@test.com',
             'password': 'test_password'
         }
-        user = User.objects.create_superuser(**data)
+        user = self.User.objects.create_superuser(**data)
         self.assertEqual(user.email, data.get('email'))
         self.assertTrue(user.is_active)
         self.assertTrue(user.is_staff)
@@ -73,6 +71,9 @@ class UserManagerTest(TestCase):
 
 class ProfileTest(TestCase):
     """ユーザーに紐付くプロフィールのテスト"""
+    def setUp(self):
+        self.User = get_user_model()
+
     def test_not_register(self):
         """データが１件もない場合のテスト"""
         profiles = Profile.objects.all()
@@ -80,8 +81,10 @@ class ProfileTest(TestCase):
 
     def test_registed(self):
         """データが作られた場合のテスト"""
-        User = get_user_model()
-        user = User.objects.create(email='test@test.com', password='testpass')
+        user = self.User.objects.create(
+            email='test@test.com',
+            password='testpass'
+        )
         Profile.objects.create(
             user=user,
             user_name='Taro-Tanaka',
@@ -98,8 +101,10 @@ class ProfileTest(TestCase):
 
     def test_absolute_url(self):
         """更新完了時の戻り先URLを正しく取得できることの確認"""
-        User = get_user_model()
-        user = User.objects.create(email='test@test.com', password='testpass')
+        user = self.User.objects.create(
+            email='test@test.com',
+            password='testpass'
+        )
         Profile.objects.create(
             user=user,
             user_name='Taro-Tanaka',
