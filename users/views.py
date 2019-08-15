@@ -42,7 +42,7 @@ class ProfileView(generic.TemplateView):
 
         # ログインユーザ情報
         login_user = self.request.user
-        if user.is_authenticated:
+        if login_user.is_authenticated:
             context['login_user'] = login_user
             user_name = Profile.objects.get(user=login_user).user_name
             context['user_name'] = user_name

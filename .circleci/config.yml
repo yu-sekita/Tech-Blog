@@ -8,11 +8,13 @@ jobs:
             - run: |
                 pipenv install flake8
                 cd blogs
+                pipenv run flake8 tests
                 pipenv run flake8 forms.py
                 pipenv run flake8 models.py
                 pipenv run flake8 urls.py
                 pipenv run flake8 views.py
                 cd ../users
+                pipenv run flake8 tests
                 pipenv run flake8 forms.py
                 pipenv run flake8 models.py
                 pipenv run flake8 urls.py
