@@ -20,7 +20,7 @@ class SetFullNameTest(TestCase):
         """ユーザーがいない時の確認"""
         context = {}
         _set_full_name(context, None)
-        self.assertEqual(context.get('name'), '')
+        self.assertEqual(context.get('user_name'), '')
 
     def test_no_username(self):
         """フルネームがないユーザーの確認"""
@@ -32,7 +32,7 @@ class SetFullNameTest(TestCase):
 
         context = {}
         _set_full_name(context, user)
-        self.assertEqual(context.get('name'), '')
+        self.assertEqual(context.get('user_name'), '')
 
     def test_with_fullname(self):
         """フルネームがあるプロフィールの確認"""
@@ -45,7 +45,7 @@ class SetFullNameTest(TestCase):
 
         context = {}
         _set_full_name(context, user)
-        self.assertEqual(context.get('name'), 'testname')
+        self.assertEqual(context.get('user_name'), 'testname')
 
 
 class ArticleListViewTest(TestCase):
@@ -247,6 +247,21 @@ class ArticleCreateViewTest(TestCase):
 
 class ArticleDetailViewTest(TestCase):
     """記事の詳細を表示するviewのテスト"""
+    def setUp(self):
+        # ユーザを準備
+        self.user = User.objects.create_user(
+            email='test@test.com',
+            password='test_password'
+        )
+        self.user.is_active = True
+        self.user.save()
+        # プロフィールを準備
+        profile = Profile.objects.create(
+            user=self.user,
+            user_name='testname'
+        )
+        profile.save()
+
     def test_no_data(self):
         """空のデータでget時のテスト"""
         url = reverse('blogs:article_detail', args=(uuid.uuid4(), ))
@@ -256,7 +271,10 @@ class ArticleDetailViewTest(TestCase):
 
     def test_one_data(self):
         """1件のデータがある時のテスト"""
-        article = Article.objects.create(title='test1', text='test text1')
+        article = Article.objects.create(
+            title='test1',
+            text='test text1',
+            author=self.user)
         url = reverse('blogs:article_detail', args=(article.id, ))
 
         response = self.client.get(url)

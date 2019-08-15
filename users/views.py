@@ -47,10 +47,7 @@ class ProfileView(generic.TemplateView):
         user = self.request.user
         if user.is_authenticated:
             context['login_user'] = user
-
-        # ログインユーザの名前
-        user_name = Profile.objects.get(user=self.request.user).user_name
-        context['user_name'] = user_name
+            context['user_name'] = Profile.objects.get(user=user).user_name
 
         # ユーザが投稿した記事
         articles = Article.objects.filter(author=profile.user)

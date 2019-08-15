@@ -116,29 +116,30 @@ class ProfileViewTest(TestCase):
         # ステータス200
         self.assertEqual(response.status_code, 200)
 
-    def test_same_name(self):
-        """同じ名前の異なるユーザがいる場合のテスト"""
-        user2 = self.User.objects.create_user(
-            email='test2@test.com',
-            password='password2'
-        )
-        user2.is_active = True
-        user2.save()
-        # 作ったユーザでログイン
-        self.client.login(email='test2@test.com', password='password2')
-
-        profile2 = Profile.objects.create(user=user2, user_name='testname')
-        profile2.save()
-
-        response = self.client.get(self.url)
-
-        # ステータス200
-        self.assertEqual(response.status_code, 200)
-        # 2つ目のプロフィールが渡されている
-        self.assertEqual(
-            response.context['profile'],
-            profile2
-        )
+    # def test_same_name(self):
+    #     """同じ名前の異なるユーザがいる場合のテスト"""
+    #     user2 = self.User.objects.create_user(
+    #         email='test2@test.com',
+    #         password='password2'
+    #     )
+    #     user2.is_active = True
+    #     user2.save()
+    #     # 作ったユーザでログイン
+    #     self.client.login(email='test2@test.com', password='password2')
+    #
+    #     # 同じ名前でプロフィールを作成
+    #     profile2 = Profile.objects.create(user=user2, user_name='testname')
+    #     profile2.save()
+    #
+    #     response = self.client.get(self.url)
+    #
+    #     # ステータス200
+    #     self.assertEqual(response.status_code, 200)
+    #     # 2つ目のプロフィールが渡されている
+    #     self.assertEqual(
+    #         response.context['profile'],
+    #         profile2
+    #     )
 
     def test_article(self):
         """ユーザが記事を投稿している場合のテスト"""
