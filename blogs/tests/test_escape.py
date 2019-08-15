@@ -49,7 +49,7 @@ class SentenceTest(TestCase):
 
     def test_str_phrase(self):
         """引数にstr型を渡した場合の確認"""
-        from blogs.escape import Phrase, Sentence
+        from blogs.escape import Sentence
 
         sentence = Sentence()
         sentence.set_phrase('phrase str')
