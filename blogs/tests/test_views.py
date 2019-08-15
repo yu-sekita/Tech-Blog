@@ -110,16 +110,13 @@ class ArticleListViewTest(TestCase):
         """作成日時の降順で出力されることの確認"""
         # 一番新しい記事
         time = timezone.now() + datetime.timedelta(days=30)
-        article1 = Article.objects.create(
-            title='first', text='1', created_at=time)
+        Article.objects.create(title='first', text='1', created_at=time)
         # 一番古い記事
         time = timezone.now() + datetime.timedelta(days=10)
-        article2 = Article.objects.create(
-            title='third', text='3', created_at=time)
+        Article.objects.create(title='third', text='3', created_at=time)
         # ２番目に新しい記事
         time = timezone.now() + datetime.timedelta(days=20)
-        article3 = Article.objects.create(
-            title='second', text='2', created_at=time)
+        Article.objects.create(title='second', text='2', created_at=time)
 
         response = self.client.get(reverse('blogs:index'))
         result = response.context['articles']
@@ -236,7 +233,7 @@ class ArticleCreateViewTest(TestCase):
         profile = Profile.objects.create(user=user, user_name='testname')
         profile.save()
 
-        response = self.client.post(reverse('blogs:article_create'), data=data)
+        self.client.post(reverse('blogs:article_create'), data=data)
 
         # textはエスケープされてDBに登録されていることの確認
         articles = Article.objects.all()
