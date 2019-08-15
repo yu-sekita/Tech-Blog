@@ -371,7 +371,6 @@ class HtmlAccepterTest(TestCase):
         エスケープを無効にした文字列をアンエスケープするテスト
         """
         from blogs.escape import HtmlAccepter
-        from blogs.escape import escape_html
         acceptation = HtmlAccepter()
 
         test_text = '''
