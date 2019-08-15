@@ -49,7 +49,7 @@ class SentenceTest(TestCase):
 
     def test_str_phrase(self):
         """引数にstr型を渡した場合の確認"""
-        from blogs.escape import Phrase, Sentence
+        from blogs.escape import Sentence
 
         sentence = Sentence()
         sentence.set_phrase('phrase str')
@@ -227,7 +227,7 @@ class StrTransTest(TestCase):
         text = 'これはテストです、&lt;と&gt;はアンエスケープされません'
 
         with self.assertRaises(ValueError) as error:
-            result = str_trans(text, d)
+            str_trans(text, d)
         error_message = 'key mast be one size'
         self.assertEquals(error.exception.args[0], error_message)
 
@@ -239,7 +239,7 @@ class StrTransTest(TestCase):
         text = 'これはテストです、&lt;と>は変換されません'
 
         with self.assertRaises(ValueError) as error:
-            result = str_trans(text, d)
+            str_trans(text, d)
         error_message = 'key mast be one size'
         self.assertEquals(error.exception.args[0], error_message)
 
@@ -278,7 +278,7 @@ class HtmlAccepterTest(TestCase):
 
         text = 100
         with self.assertRaises(ValueError) as error:
-            result = acceptation.accepts(text)
+            acceptation.accepts(text)
         error_message = 'input string type'
         self.assertEquals(error.exception.args[0], error_message)
 
@@ -371,7 +371,6 @@ class HtmlAccepterTest(TestCase):
         エスケープを無効にした文字列をアンエスケープするテスト
         """
         from blogs.escape import HtmlAccepter
-        from blogs.escape import escape_html
         acceptation = HtmlAccepter()
 
         test_text = '''
