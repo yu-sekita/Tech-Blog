@@ -1,10 +1,7 @@
 import io
-import sys
 
 from django.contrib.auth import get_user_model
 from django.contrib.auth.tokens import default_token_generator
-from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.template.loader import get_template
 from django.test import TestCase
 from django.urls import reverse
 from django.utils.encoding import force_bytes
@@ -530,7 +527,7 @@ class UserCreateViewTest(TestCase):
             'password1': 'test_password',
             'password2': 'test_password',
         }
-        response = self.client.post(reverse('users:user_create'), data=data)
+        self.client.post(reverse('users:user_create'), data=data)
         # プロフィールが登録されていること
         user = get_user_model().objects.get(email=data['email'])
         profile = Profile.objects.get(user=user)
