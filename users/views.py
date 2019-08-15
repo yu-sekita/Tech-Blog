@@ -1,5 +1,6 @@
 import io
 import sys
+import uuid
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -39,15 +40,22 @@ class ProfileView(generic.TemplateView):
         """プロフィール画面に表示する情報を登録"""
         context = super().get_context_data(**kwargs)
 
-        # プロフィール情報
-        profile = Profile.objects.get(user_name=kwargs['name'])
-        context['profile'] = profile
-
         # ログインユーザ情報
         user = self.request.user
         if user.is_authenticated:
             context['login_user'] = user
             context['user_name'] = Profile.objects.get(user=user).user_name
+
+        # プロフィール情報
+        if 'id' in self.request.GET:
+            # リクエストパラメータにidを含む場合
+            # 記事の投稿者のプロフィールを表示
+            author = Article.objects.get(pk=self.request.GET['id']).author
+            profile = Profile.objects.get(user=author)
+        else:
+            # ログインユーザのプロフィールを表示
+            profile = Profile.objects.get(user=user)
+        context['profile'] = profile
 
         # ユーザが投稿した記事
         articles = Article.objects.filter(author=profile.user)
@@ -60,6 +68,20 @@ class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
     model = Profile
     form_class = ProfileEditForm
     template_name = 'users/profile_edit.html'
+
+    def form_invalid(self, form):
+        form.error_message = 'このユーザ名は既に登録されています。'
+        return super(generic.UpdateView, self).form_invalid(form)
+
+    def form_valid(self, form):
+        # 更新項目にユーザ名を含んでいた場合
+        fm_usrname = form.cleaned_data['user_name']
+        if fm_usrname != Profile.objects.get(user=self.request.user).user_name:
+            # 更新しようとするユーザー名が既に存在したら入力し直す
+            user_names = (p.user_name for p in Profile.objects.all())
+            if fm_usrname in user_names:
+                return self.form_invalid(form)
+        return super(generic.UpdateView, self).form_valid(form)
 
     def get_object(self):
         """URLにpkを含まないため"""
@@ -163,7 +185,8 @@ class UserCreateView(generic.CreateView):
         # プロフィールも一緒に作成
         profile = Profile.objects.create(
             user=user,
-            user_name=form.cleaned_data['email'])
+            user_name=str(uuid.uuid4())[:13]
+        )
         profile.save()
 
         # アクティベーションURLの送付
