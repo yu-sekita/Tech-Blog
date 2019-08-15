@@ -52,8 +52,6 @@ class UserCreateFormTest(TestCase):
         self.assertEqual(
             form.cleaned_data['email'], form_data.get('email'))
         self.assertEqual(
-            form.cleaned_data['user_name'], form_data.get('user_name'))
-        self.assertEqual(
             form.cleaned_data['password1'], form_data.get('password1'))
         self.assertEqual(
             form.cleaned_data['password2'], form_data.get('password2'))
