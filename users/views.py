@@ -41,20 +41,14 @@ class ProfileView(generic.TemplateView):
         context = super().get_context_data(**kwargs)
 
         # ログインユーザ情報
-        user = self.request.user
+        login_user = self.request.user
         if user.is_authenticated:
-            context['login_user'] = user
-            context['user_name'] = Profile.objects.get(user=user).user_name
+            context['login_user'] = login_user
+            user_name = Profile.objects.get(user=login_user).user_name
+            context['user_name'] = user_name
 
-        # プロフィール情報
-        if 'id' in self.request.GET:
-            # リクエストパラメータにidを含む場合
-            # 記事の投稿者のプロフィールを表示
-            author = Article.objects.get(pk=self.request.GET['id']).author
-            profile = Profile.objects.get(user=author)
-        else:
-            # ログインユーザのプロフィールを表示
-            profile = Profile.objects.get(user=user)
+        # ユーザ名によるプロフィール情報
+        profile = Profile.objects.get(user_name=kwargs['name'])
         context['profile'] = profile
 
         # ユーザが投稿した記事
@@ -68,6 +62,12 @@ class ProfileEditView(LoginRequiredMixin, generic.UpdateView):
     model = Profile
     form_class = ProfileEditForm
     template_name = 'users/profile_edit.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        profile = Profile.objects.get(user=self.request.user)
+        context['profile'] = profile
+        return context
 
     def form_invalid(self, form):
         form.error_message = 'このユーザ名は既に登録されています。'

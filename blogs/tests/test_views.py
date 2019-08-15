@@ -284,6 +284,19 @@ class ArticleDetailViewTest(TestCase):
         self.assertTemplateUsed(response, 'blogs/article_detail.html')
         self.assertContains(response, article.title)
 
+    def test_get_context_data(self):
+        """コンテキストデータが正常に渡されていることの確認"""
+        article = Article.objects.create(
+            title='test1',
+            text='test text1',
+            author=self.user)
+        url = reverse('blogs:article_detail', args=(article.id, ))
+
+        response = self.client.get(url)
+
+        # コンテキスト
+        self.assertTrue(response.context['author_name'] is not None)
+
 
 class ArticleEditViewTest(TestCase):
     """記事編集viewのテスト"""

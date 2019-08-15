@@ -139,7 +139,6 @@ class ProfileViewTest(TestCase):
             'users:profile',
             kwargs={'name': 'author'}
         )
-        url += '?id=' + str(article.pk)
         response = self.client.get(url)
 
         # ステータス200

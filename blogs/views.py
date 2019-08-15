@@ -82,7 +82,7 @@ class ArticleDetailView(generic.DetailView):
 
         # プロフィール表示用の投稿者の名前
         profile = Profile.objects.get(user=kwargs['object'].author)
-        context['create_user_name'] = profile.user_name
+        context['author_name'] = profile.user_name
 
         # ログインユーザ
         context['login_user'] = self.request.user
