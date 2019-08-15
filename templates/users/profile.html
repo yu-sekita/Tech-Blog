@@ -92,6 +92,7 @@
                 </thead>
                 <tbody>
                     {% for article in articles %}
+                    {% if login_user == profile.user or article.is_public %}
                     <tr>
                         <td style="width: 15%;">{{ article.created_at|date:'Y/n/j' }}</td>
                         <td style="width: 70%;">{{ article.title }}</td>
@@ -102,6 +103,7 @@
                                 Delete</a></td>
                         {% endif %}
                     </tr>
+                    {% endif %}
                     {% endfor %}
                 </tbody>
             </table>
