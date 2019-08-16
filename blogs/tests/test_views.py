@@ -292,7 +292,7 @@ class ArticleDetailViewTest(TestCase):
         response = self.client.get(url)
 
         # コンテキスト
-        self.assertTrue(response.context['author_name'] is not None)
+        self.assertTrue(response.context['author_profile'] is not None)
 
 
 class ArticleEditViewTest(TestCase):
