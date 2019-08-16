@@ -19,7 +19,7 @@
                 {% if profile.image %}
                 <img src="{{ profile.image.url }}">
                 {% else %}
-                <img src="{% static 'users/img/default.jpg' %}">
+                <img src="{% static 'users/img/default_profile.jpg' %}">
                 {% endif %}
                 {% if login_user == profile.user %}
                 <div class="mask">

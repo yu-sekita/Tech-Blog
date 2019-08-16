@@ -24,6 +24,7 @@ class Article(models.Model):
         null=True
     )
     is_public = models.BooleanField('公開', default=True)
+    thumbnail = models.ImageField(upload_to='thumbnail', blank=True)
 
     def __str__(self):
         return self.title

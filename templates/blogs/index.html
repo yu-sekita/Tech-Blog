@@ -1,4 +1,5 @@
 {% extends 'blogs/blogs_base.html' %}
+{% load static %}
 
 {% block title %}Yu Tech Blog{% endblock %}
 
@@ -9,34 +10,46 @@
 {% block content %}
     <section class="section1">
         <div class="section-container">
-            <!-- paging -->
-            <div class="mb-5">
-                {% include 'includes/page.html' %}
-            </div>
             <div class="container ">
+                <!-- paging -->
                 <div class="row">
-                    <div class="mx-auto">
-                        <div class="card-deck">
-                            {% for article in articles %}
-                            <div class="filter">
-                                <a class="card-deck border-secondary shadow" style="margin: 15px; width: 20rem; height: 15rem;" href="{% url 'blogs:article_detail' article.pk %}">
-                                    <div class="card-body text-secondary">
-                                        <h4 class="card-title">{{ article.title }}</h4>
-                                    </div>
-                                </a>
-                            </div>
-                            {% endfor %}
-                        </div>
+                    <div class="col-sm-12 col-md-9 col-lg-9 mb-5">
+                        {% include 'includes/page.html' %}
                     </div>
                 </div>
-            </div>
-
-            <!-- paging -->
-            {% if page_obj|length >= 9 %}
-                <div class="mt-5">
-                    {% include 'includes/page.html' %}
+                <div class="row">
+                    <div class="col-sm-12 col-md-9 col-lg-9 ml-5 mr-5">
+                        {% for article in articles %}
+                        <a href="{% url 'blogs:article_detail' article.pk %}"class="card mb-3" style="max-width: 600px;">
+                            <div class="row no-gutters">
+                            <div class="col-md-4 thumbnail">
+                                {% if article.thumbnail %}
+                                <img src="{{ article.thumbnail.url }}" class="card-img" alt="...">
+                                {% else %}
+                                <img src="{% static 'blogs/img/default_thumbnail.jpg' %}" class="card-img" alt="...">
+                                {% endif %}
+                            </div>
+                            <div class="col-md-8">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ article.title }}</h5>
+                                    <p class="card-text">{{ article.text | truncatechars:60}}</p>
+                                </div>
+                            </div>
+                          </div>
+                        </a>
+                        {% endfor %}
+                    </div>
                 </div>
-            {% endif %}
+
+                <!-- paging -->
+                {% if page_obj|length >= 9 %}
+                <div class="row">
+                    <div class="col-sm-12 col-md-9 col-lg-9 mt-5">
+                        {% include 'includes/page.html' %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </section>
 
