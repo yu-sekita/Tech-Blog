@@ -525,7 +525,7 @@ class ArticleDeleteViewTest(TestCase):
         self.client.login(email='test@test.com', password='testpass')
 
         # postリクエスト
-        response = self.client.post(self.url)
+        self.client.post(self.url)
 
         # 記事が存在しない
         aritlces = Article.objects.all()
