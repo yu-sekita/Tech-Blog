@@ -1,10 +1,12 @@
 import datetime
+import io
 import uuid
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
 from django.urls import reverse
+from PIL import Image
 
 from blogs.models import Article
 from blogs.views import _set_full_name
@@ -127,19 +129,30 @@ class ArticleListViewTest(TestCase):
 
 class ArticleCreateViewTest(TestCase):
     """記事を追加するviewのテスト"""
-    def test_get(self):
-        """getリクエスト時のテスト"""
-        # ユーザを準備
-        user = User.objects.create_user(
+    def setUp(self):
+        # ユーザを保存
+        self.user = User.objects.create_user(
             email='test@test.com',
-            password='test_password'
+            password='testpass'
         )
-        user.is_active = True
-        self.client.login(email='test@test.com', password='test_password')
-        profile = Profile.objects.create(user=user, user_name='testname')
+        self.user.is_active = True
+        self.user.save()
+
+        # プロフィールを保存
+        profile = Profile.objects.create(
+            user=self.user,
+            user_name='test name'
+        )
         profile.save()
 
-        response = self.client.get(reverse('blogs:article_create'))
+        # URL
+        self.url = reverse('blogs:article_create')
+
+    def test_get(self):
+        """getリクエスト時のテスト"""
+        self.client.login(email='test@test.com', password='testpass')
+
+        response = self.client.get(self.url)
         # ステータス200
         self.assertEqual(response.status_code, 200)
         # テンプレートarticle_create.html
@@ -147,18 +160,10 @@ class ArticleCreateViewTest(TestCase):
 
     def test_no_dada(self):
         """空のデータでpost時のテスト"""
-        # ユーザを準備
-        user = User.objects.create_user(
-            email='test@test.com',
-            password='test_password'
-        )
-        user.is_active = True
-        self.client.login(email='test@test.com', password='test_password')
-        profile = Profile.objects.create(user=user, user_name='testname')
-        profile.save()
+        self.client.login(email='test@test.com', password='testpass')
 
         data = {}
-        response = self.client.post(reverse('blogs:article_create'), data=data)
+        response = self.client.post(self.url, data=data)
         # ステータス200
         self.assertEqual(response.status_code, 200)
         # テンプレートarticle_create.html
@@ -173,7 +178,7 @@ class ArticleCreateViewTest(TestCase):
             'title': 'Test1',
             'text': 'Test1 text',
         }
-        response = self.client.post(reverse('blogs:article_create'), data=data)
+        response = self.client.post(self.url, data=data)
         # ステータス302
         self.assertEqual(response.status_code, 302)
         # テンプレートarticle_create.html
@@ -184,22 +189,14 @@ class ArticleCreateViewTest(TestCase):
 
     def test_with_dada(self):
         """データ有りpost時のテスト"""
+        self.client.login(email='test@test.com', password='testpass')
+
         data = {
             'title': 'Test1',
             'text': 'Test1 text',
         }
 
-        # ユーザを準備
-        user = User.objects.create_user(
-            email='test@test.com',
-            password='test_password'
-        )
-        user.is_active = True
-        self.client.login(email='test@test.com', password='test_password')
-        profile = Profile.objects.create(user=user, user_name='testname')
-        profile.save()
-
-        response = self.client.post(reverse('blogs:article_create'), data=data)
+        response = self.client.post(self.url, data=data)
 
         # ステータス302
         self.assertEqual(response.status_code, 302)
@@ -222,24 +219,81 @@ class ArticleCreateViewTest(TestCase):
             'title': 'Test1',
             'text': test_text,
         }
+        self.client.login(email='test@test.com', password='testpass')
 
-        # ユーザを準備
-        user = User.objects.create_user(
-            email='test@test.com',
-            password='test_password'
-        )
-        user.is_active = True
-        self.client.login(email='test@test.com', password='test_password')
-        profile = Profile.objects.create(user=user, user_name='testname')
-        profile.save()
-
-        self.client.post(reverse('blogs:article_create'), data=data)
+        self.client.post(self.url, data=data)
 
         # textはエスケープされてDBに登録されていることの確認
         articles = Article.objects.all()
         self.assertEqual(articles[0].text, confirm_text)
         # ユーザが紐づいていることの確認
-        self.assertEqual(articles[0].author.email, user.email)
+        self.assertEqual(articles[0].author.email, self.user.email)
+
+    def test_jpeg_post(self):
+        """postリクエスト時、jpeg画像で作成可能である場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='testpass')
+
+        # 画像の準備
+        thumbnail = io.BytesIO()
+        thumbnail_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        thumbnail_image = thumbnail_image.convert('RGB')
+        thumbnail_image.save(thumbnail, format='JPEG')
+        thumbnail.name = 'ArticleEditViewTest_test_jpeg_post.jpg'
+        thumbnail.seek(0)
+        form_data = {
+            'thumbnail': thumbnail,
+            'title': 'test title',
+            'text': 'test text',
+        }
+
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトblogs:article_detail
+        article = Article.objects.get(author=self.user)
+        confirm_url = '/detail/' + str(article.pk) + '/'
+        self.assertRedirects(response, confirm_url)
+        # thumbnailが更新されている
+        self.assertEqual(article.thumbnail.name, 'thumbnail/' + thumbnail.name)
+
+        # 確認後画像を削除
+        article.thumbnail.delete()
+        article.save()
+
+    def test_png_post(self):
+        """postリクエスト時、png画像で作成可能である場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='testpass')
+
+        # 画像の準備
+        thumbnail = io.BytesIO()
+        thumbnail_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        thumbnail_image = thumbnail_image.convert('P')
+        thumbnail_image.save(thumbnail, format='png')
+        thumbnail.name = 'ArticleEditViewTest_test_png_post.png'
+        thumbnail.seek(0)
+        form_data = {
+            'thumbnail': thumbnail,
+            'title': 'test title',
+            'text': 'test text',
+        }
+
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトblogs:article_detail
+        article = Article.objects.get(author=self.user)
+        confirm_url = '/detail/' + str(article.pk) + '/'
+        self.assertRedirects(response, confirm_url)
+        # thumbnailが更新されている
+        self.assertEqual(article.thumbnail.name, 'thumbnail/' + thumbnail.name)
+
+        # 確認後画像を削除
+        article.thumbnail.delete()
+        article.save()
 
 
 class ArticleDetailViewTest(TestCase):
@@ -431,6 +485,108 @@ class ArticleEditViewTest(TestCase):
         # リダイレクトarticle_detail
         confirm_redirect = '/detail/' + str(self.id) + '/'
         self.assertRedirects(response, confirm_redirect)
+
+    def test_jpeg_post(self):
+        """postリクエスト時、jpeg画像で更新可能である場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='testpass')
+
+        # 画像の準備
+        thumbnail = io.BytesIO()
+        thumbnail_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        thumbnail_image = thumbnail_image.convert('RGB')
+        thumbnail_image.save(thumbnail, format='JPEG')
+        thumbnail.name = 'ArticleEditViewTest_test_jpeg_post.jpg'
+        thumbnail.seek(0)
+        form_data = {
+            'thumbnail': thumbnail,
+            'title': 'test title',
+            'text': 'test text',
+        }
+
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトblogs:article_detail
+        confirm_url = '/detail/' + str(self.id) + '/'
+        self.assertRedirects(response, confirm_url)
+        # thumbnailが更新されている
+        article = Article.objects.get(pk=self.id)
+        self.assertEqual(article.thumbnail.name, 'thumbnail/' + thumbnail.name)
+
+        # 確認後画像を削除
+        article.thumbnail.delete()
+        article.save()
+
+    def test_png_post(self):
+        """postリクエスト時、png画像で更新可能である場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='testpass')
+
+        # 画像の準備
+        thumbnail = io.BytesIO()
+        thumbnail_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        thumbnail_image = thumbnail_image.convert('P')
+        thumbnail_image.save(thumbnail, format='png')
+        thumbnail.name = 'ArticleEditViewTest_test_png_post.png'
+        thumbnail.seek(0)
+        form_data = {
+            'thumbnail': thumbnail,
+            'title': 'test title',
+            'text': 'test text',
+        }
+
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトblogs:article_detail
+        confirm_url = '/detail/' + str(self.id) + '/'
+        self.assertRedirects(response, confirm_url)
+        # thumbnailが更新されている
+        article = Article.objects.get(pk=self.id)
+        self.assertEqual(article.thumbnail.name, 'thumbnail/' + thumbnail.name)
+
+        # 確認後画像を削除
+        article.thumbnail.delete()
+        article.save()
+
+    def test_clear_post(self):
+        """postリクエスト時、クリアの場合のテスト"""
+        # ログイン
+        self.client.login(email='test@test.com', password='testpass')
+
+        # 先に画像を保存しておく必要があるため用意
+        thumbnail = io.BytesIO()
+        thumbnail_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        thumbnail_image = thumbnail_image.convert('P')
+        thumbnail_image.save(thumbnail, format='png')
+        thumbnail.name = 'ArticleEditViewTest_test_png_post.png'
+        thumbnail.seek(0)
+        form_data = {
+            'thumbnail': thumbnail,
+            'title': 'test title',
+            'text': 'test text',
+        }
+        response = self.client.post(self.url, data=form_data)
+
+        # クリアでpost
+        form_data = {
+            'thumbnail-clear': 'on',
+            'title': 'test title',
+            'text': 'test text',
+        }
+        response = self.client.post(self.url, data=form_data)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクトblogs:article_detail
+        confirm_url = '/detail/' + str(self.id) + '/'
+        self.assertRedirects(response, confirm_url)
+        # thumbnailが更新されている
+        article = Article.objects.get(pk=self.id)
+        self.assertEqual(article.thumbnail.name, '')
 
 
 class ArticleDeleteViewTest(TestCase):
