@@ -1,9 +1,10 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponseBadRequest
+from django.urls import reverse
 from django.views import generic
 
-from django.contrib.auth.mixins import LoginRequiredMixin
 from blogs.escape import escape_markdown
 from blogs.forms import ArticleForm
-from django.http import HttpResponseBadRequest
 from blogs.models import Article
 from users.models import Profile
 
@@ -115,3 +116,29 @@ class ArticleEditView(LoginRequiredMixin, generic.UpdateView):
             escaped_text = escape_markdown(form.instance.text, ACCEPT_TAGS)
             form.instance.text = escaped_text
         return super(generic.UpdateView, self).form_valid(form)
+
+
+class ArticleDeleteView(LoginRequiredMixin, generic.DeleteView):
+    """記事削除画面を表示"""
+    model = Article
+    template_name = 'blogs/article_delete.html'
+
+    def get_success_url(self):
+        profile = Profile.objects.get(user=self.request.user)
+        return reverse('users:profile', kwargs={'name': profile.user_name})
+
+    def get(self, request, *args, **kwargs):
+        """投稿者でないユーザがgetリクエスト投げたらエラーを返す"""
+        author = Article.objects.get(pk=kwargs['pk']).author
+        if self.request.user == author:
+            return super().get(self, request, *args, **kwargs)
+        return HttpResponseBadRequest()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # ナブバー設定用ユーザーのフルネーム
+        _set_full_name(context, self.request.user)
+
+        # 記事のタイトル
+        context['article_title'] = kwargs['object'].title
+        return context
