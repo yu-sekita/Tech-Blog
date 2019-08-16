@@ -1,4 +1,9 @@
+body {
+    font-family: "游ゴシック体", YuGothic, "游ゴシック Medium", "Yu Gothic Medium";
+}
+
 .title h1 {
+    font-size: 30px;
     margin: 30px 0px 30px 0px;
     padding: 0.4em 0.5em;/*文字の上下 左右の余白*/
     color: #494949;/*文字色*/
@@ -37,11 +42,16 @@ section.section1 {
     position: relative;
 }
 
-.toc {
-    border: solid 1px #d7d7d7;
+.card-body .card-title {
+    font-size: 25px;
 }
-.toc ul {
-    margin-top: 20px;
+
+.card-body .card-text {
+    font-size: 15px;
+}
+
+.content a {
+    color: #696969;
 }
 
 /*ウィンドウ幅が0～749pxの場合にcssを適用*/
@@ -49,6 +59,10 @@ section.section1 {
     .content {
         margin-left:  31.5px;
         margin-right: 31.5px;
+    }
+    .content-detail {
+        margin-left:  5px;
+        margin-right: 5px;
     }
     .thumbnail img{
         width:    250px;
@@ -61,6 +75,10 @@ section.section1 {
         margin-left:  50px;
         margin-right: 50px;
     }
+    .content-detail {
+        margin-left:  50px;
+        margin-right: 50px;
+    }
     .thumbnail img{
         width:    100%;
         height:   100%;
@@ -69,6 +87,10 @@ section.section1 {
 /*ウィンドウ幅が1200px～の場合にcssを適用*/
 @media screen and (min-width: 1200px) {
     .content {
+        margin-left:  50px;
+        margin-right: 50px;
+    }
+    .content-detail {
         margin-left:  50px;
         margin-right: 50px;
     }
