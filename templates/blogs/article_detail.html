@@ -1,28 +1,44 @@
 
 {% extends 'blogs/blogs_base.html' %}
 {% load markdown %}
+{% load static %}
 
 {% block title %}{{ article.title }}{% endblock %}
 
 {% block content %}
-    <div class="container" style="margin-top: 100px; margin-bottom: 100px">
-        <div class="row mb-5">
-            <div class="col-md-6 col-lg-6 text-left pl-5">
-                <a href="{% url 'users:profile' author_name %}">{{ author_name }}</a>
-            </div>
-            {% if login_user == article.author %}
-            <div class="col-md-6 col-lg-6 text-right pr-5">
-                <a href="{% url 'blogs:article_edit' article.pk %}">Edit</a>
-            </div>
-            {% endif %}
-        </div>
+    <div class="container mb-5" style="margin-top: 100px;">
         <div class="row">
-            <div class="col-md-12 col-lg-12 title">
-                <h1>{{ article.title }}</h1>
+            <div class="col-sm-12 col-md-9 col-lg-9">
+                <div class="row article-menu">
+                    <div class="col-xs-6 col-md-6 col-lg-6 text-left pl-3">
+                        <div class="profile-img-short">
+                            <a href="{% url 'users:profile' author_profile.user_name %}">
+                                {% if author_profile.image %}
+                                <img src="{{ author_profile.image.url }}">
+                                {% else %}
+                                <img src="{% static 'users/img/default_profile.jpg' %}">
+                                {% endif %}
+                                <span class="">{{ author_profile.user_name }}</span>
+                            </a>
+                        </div>
+                    </div>
+                    {% if login_user == article.author %}
+                    <div class="col-xs-6 col-md-6 col-lg-6 text-right pr-5 mt-4">
+                        <a href="{% url 'blogs:article_edit' article.pk %}">
+                            <span>Edit</span>
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+                <div class="row">
+                    <div class="col-md-12 col-lg-12 title">
+                        <h1>{{ article.title }}</h1>
+                    </div>
+                </div>
+                <div class="markdown">
+                    {{ article.text | markdown_to_html }}
+                </div>
             </div>
-        </div>
-        <div class="markdown">
-            {{ article.text | markdown_to_html }}
         </div>
     </div>
 
