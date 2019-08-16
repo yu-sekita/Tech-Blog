@@ -13,40 +13,6 @@ section.section1 {
     padding: 100px 0px 100px 0px;
 }
 
-/* .thumbnail img{
-    width:    140px;
-    height:   140px;
-} */
-
-/* .filter a{
-    display:block;
-    position: relative;
-    width:400px;
-    min-height:300px;
-    display: flex;
-    justify-content: center;
-    justify-content: flex-start;
-    align-items: center;
-    align-items: flex-end;
-}
-.filter a:before{
-    background-color: rgba(0,0,0,0.2);
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    content: ' ';
-    -webkit-transition: all 0.3s;
-    -moz-transition: all 0.3s;
-    -ms-transition: all 0.3s;
-    -o-transition: all 0.3s;
-    transition: all 0.3s;
-}
-.filter a:hover:before{
-    background-color: rgba(0,0,0,0.0);
-} */
-
 .article-menu a span {
     color: #696969;
     opacity: 0.5;
@@ -94,8 +60,8 @@ section.section1 {
         width: 700px;
     }
     .thumbnail img{
-        width:    140px;
-        height:   140px;
+        width:    160px;
+        height:   160px;
     }
 }
 /*ウィンドウ幅が1200px～の場合にcssを適用*/
@@ -104,7 +70,7 @@ section.section1 {
         width: 1050px;
     }
     .thumbnail img{
-        width:    140px;
-        height:   140px;
+        width:    100%;
+        height:   100%;
     }
 }
