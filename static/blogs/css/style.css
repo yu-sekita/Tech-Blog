@@ -46,29 +46,20 @@ section.section1 {
 
 /*ウィンドウ幅が0～749pxの場合にcssを適用*/
 @media screen and (min-width: 0px) {
-    .card-deck {
-        width: auto;
+    .thumbnail img{
+        width:    250px;
+        height:   250px;
     }
+}
+/*ウィンドウ幅が750～1199pxの場合にcssを適用*/
+@media screen and (min-width: 750px) {
     .thumbnail img{
         width:    100%;
         height:   100%;
     }
 }
-/*ウィンドウ幅が750～1199pxの場合にcssを適用*/
-@media screen and (min-width: 750px) {
-    .card-deck {
-        width: 700px;
-    }
-    .thumbnail img{
-        width:    160px;
-        height:   160px;
-    }
-}
 /*ウィンドウ幅が1200px～の場合にcssを適用*/
 @media screen and (min-width: 1200px) {
-    .card-deck {
-        width: 1050px;
-    }
     .thumbnail img{
         width:    100%;
         height:   100%;
