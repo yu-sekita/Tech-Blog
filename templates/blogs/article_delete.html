@@ -1,0 +1,39 @@
+{% extends 'blogs/blogs_base.html' %}
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+{% load article %}
+
+{% block title %} confirm delete {% endblock %}
+
+{% block content %}
+    <div class="container" style="margin-top: 100px; margin-bottom: 100px">
+        <div class="row mt-5 mb-5">
+            <div class="col-md-12">
+                <a href="{% url 'users:profile' user_name %}" class="btn btn-light">
+                    <i class="fas fa-backward" style="margin-right: 4px;"></i>Back
+                </a>
+            </div>
+        </div>
+        <div class="row mt-5 mb-5">
+            <div class="col-md-12">
+                <h4>Are you sure?</h4>
+                <table class="table table-striped mt-5 mb-5">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>{{ article.title }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <form action="" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-outline-danger">削除</button>
+                </form>
+            </div>
+        </div>
+    </div>
+{% endblock %}

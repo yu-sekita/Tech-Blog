@@ -431,3 +431,102 @@ class ArticleEditViewTest(TestCase):
         # リダイレクトarticle_detail
         confirm_redirect = '/detail/' + str(self.id) + '/'
         self.assertRedirects(response, confirm_redirect)
+
+
+class ArticleDeleteViewTest(TestCase):
+    """記事削除機能のテスト"""
+    def setUp(self):
+        # ユーザ準備
+        self.user = get_user_model().objects.create_user(
+            email='test@test.com',
+            password='testpass'
+        )
+        self.user.is_active = True
+        self.user.save()
+        # プロフィール準備
+        profile = Profile.objects.create(
+            user=self.user,
+            user_name='testname'
+        )
+        profile.save()
+        # 記事準備
+        article = Article.objects.create(
+            title='test title',
+            text='test text',
+            author=self.user
+        )
+        article.save()
+        # url準備
+        self.article_id = article.pk
+        self.url = reverse('blogs:article_delete', args=(self.article_id, ))
+
+    def test_get_not_login(self):
+        """未ログインユーザから遷移した場合のテスト"""
+        # getリクエスト
+        response = self.client.get(self.url)
+
+        # ステータス302
+        self.assertEqual(response.status_code, 302)
+        # リダイレクト
+        confirm_url = '/login/?next=/delete/' + str(self.article_id) + '/'
+        self.assertRedirects(
+            response,
+            confirm_url
+        )
+
+    def test_get_not_author(self):
+        """投稿者でないユーザから遷移した場合のテスト"""
+        # 投稿者でないユーザの準備
+        not_author = get_user_model().objects.create_user(
+            email='notauthor@test.com',
+            password='notauthor'
+        )
+        not_author.is_active = True
+        not_author.save()
+
+        # 投稿者でないユーザでログイン
+        self.client.login(email='notauthor@test.com', password='notauthor')
+
+        # getリクエスト
+        response = self.client.get(self.url)
+
+        # BadRequest
+        self.assertEqual(response.status_code, 400)
+
+    def test_context_data(self):
+        """コンテキストデータが正しく渡されていることの確認"""
+        # ログイン
+        self.client.login(email='test@test.com', password='testpass')
+
+        # getリクエスト
+        response = self.client.get(self.url)
+
+        # ステータス200
+        self.assertEqual(response.status_code, 200)
+        # コンテキストデータ
+        self.assertEqual(response.context['article_title'], 'test title')
+
+    def test_success_url(self):
+        """削除成功時、正しく遷移されることの確認"""
+        # ログイン
+        self.client.login(email='test@test.com', password='testpass')
+
+        # postリクエスト
+        response = self.client.post(self.url)
+
+        # ステータス200
+        self.assertEqual(response.status_code, 302)
+        # リダイレクト
+        self.assertRedirects(response, '/profile/testname/')
+
+    def test_delete_article(self):
+        """削除成功時、記事が削除されていることの確認"""
+        # ログイン
+        self.client.login(email='test@test.com', password='testpass')
+
+        # postリクエスト
+        self.client.post(self.url)
+
+        # 記事が存在しない
+        aritlces = Article.objects.all()
+        self.assertEqual(len(aritlces), 0)

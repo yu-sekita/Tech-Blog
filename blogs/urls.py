@@ -14,4 +14,7 @@ urlpatterns = [
     path('edit/<uuid:pk>/',
          views.ArticleEditView.as_view(),
          name='article_edit'),
+    path('delete/<uuid:pk>/',
+         views.ArticleDeleteView.as_view(),
+         name='article_delete'),
 ]
