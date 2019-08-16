@@ -1,7 +1,12 @@
+import io
+import sys
+
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http import HttpResponseBadRequest
 from django.urls import reverse
 from django.views import generic
+from PIL import Image
 
 from blogs.escape import escape_markdown
 from blogs.forms import ArticleForm
@@ -14,6 +19,31 @@ ACCEPT_TAGS = [
     'li', 'ol', 'ol start="42"', 'p', 'pre', 'sub', 'sup', 'strong',
     'strike', 'ul', 'br', 'hr',
 ]
+
+
+def _image_resize(image, size):
+    """画像を指定のサイズにリサイズする関数"""
+    # 画像のフォーマットを取得
+    im_format = image.name.split('.')[1]
+
+    im = Image.open(image)
+    im = im.resize(size, Image.LANCZOS)
+
+    output_file = io.BytesIO()
+    if im_format == 'png':
+        im.save(output_file, format='PNG')
+    else:
+        im.save(output_file, format='JPEG')
+    output_file.seek(0)
+
+    return InMemoryUploadedFile(
+        output_file,
+        'ImageField',
+        image.name,
+        'image/%s' % im_format,
+        sys.getsizeof(output_file),
+        None
+    )
 
 
 def _set_full_name(context, user):
@@ -61,13 +91,27 @@ class ArticleCreateView(LoginRequiredMixin, generic.CreateView):
             escaped_text = escape_markdown(form.instance.text, ACCEPT_TAGS)
             form.instance.text = escaped_text
             form.instance.author = self.request.user
-        return super(generic.CreateView, self).form_valid(form)
+        # 画像処理後、親クラスのform_validを呼び出す
+        return self._image_proc(form)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # ナブバー設定用ユーザーのフルネーム
         _set_full_name(context, self.request.user)
         return context
+
+    def _image_proc(self, form):
+        # formにデータがない場合
+        if form.cleaned_data['thumbnail'] is None:
+            return super(generic.CreateView, self).form_valid(form)
+
+        # 画像のリサイズ
+        form.instance.thumbnail = _image_resize(
+            image=form.instance.thumbnail,
+            size=(150, 150)
+        )
+
+        return super(generic.CreateView, self).form_valid(form)
 
 
 class ArticleDetailView(generic.DetailView):
@@ -115,7 +159,37 @@ class ArticleEditView(LoginRequiredMixin, generic.UpdateView):
             # ACCEPT_TAGSに登録していないタグをエスケープ
             escaped_text = escape_markdown(form.instance.text, ACCEPT_TAGS)
             form.instance.text = escaped_text
+        # 画像処理後、親クラスのform_validを呼び出す
+        return self._image_proc(form)
+
+    def _image_proc(self, form):
+        # formに画像がない場合そのまま親に渡す
+        if form.cleaned_data['thumbnail'] is None:
+            return super(generic.UpdateView, self).form_valid(form)
+
+        # クリアなら画像削除後そのまま親に渡す
+        article_pk = form.instance.pk
+        if 'thumbnail-clear' in form.data:
+            if form.data['thumbnail-clear'] == 'on':
+                self._del_image(article_pk)
+                return super(generic.UpdateView, self).form_valid(form)
+
+        # 画像のリサイズ
+        form.instance.thumbnail = _image_resize(
+            image=form.instance.thumbnail,
+            size=(150, 150)
+        )
+        # 更新前の画像を削除
+        self._del_image(article_pk)
+
         return super(generic.UpdateView, self).form_valid(form)
+
+    def _del_image(self, article_pk):
+        """画像を削除"""
+        article = Article.objects.get(pk=article_pk)
+        if article.thumbnail:
+            article.thumbnail.delete()
+            article.save()
 
 
 class ArticleDeleteView(LoginRequiredMixin, generic.DeleteView):
