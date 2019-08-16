@@ -1,5 +1,5 @@
 .title h1 {
-    margin: 58px 0px 30px 0px;
+    margin: 30px 0px 30px 0px;
     padding: 0.4em 0.5em;/*文字の上下 左右の余白*/
     color: #494949;/*文字色*/
     background: #f4f4f4;/*背景色*/
@@ -40,6 +40,37 @@ section.section1 {
 }
 .filter a:hover:before{
     background-color: rgba(0,0,0,0.0);
+}
+
+.article-menu a span {
+    color: #696969;
+    opacity: 0.5;
+}
+.article-menu a:hover span {
+    color: #696969;
+    opacity: 1.0;
+}
+
+.article-menu .profile-img-short {
+    margin: 0px 0px 0px 0px;
+}
+
+.article-menu .profile-img-short img {
+    color: #696969;
+    opacity: 1.0;
+    border-radius: 50%;
+    width:    80px;
+    height:   80px;
+    border:   solid 5px #ffffff;
+    overflow: hidden;
+    position: relative;
+}
+
+.toc {
+    border: solid 1px #d7d7d7;
+}
+.toc ul {
+    margin-top: 20px;
 }
 
 /*ウィンドウ幅が0～749pxの場合にcssを適用*/

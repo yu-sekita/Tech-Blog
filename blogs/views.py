@@ -81,9 +81,9 @@ class ArticleDetailView(generic.DetailView):
         # ナブバー設定用ユーザーのフルネーム
         _set_full_name(context, self.request.user)
 
-        # プロフィール表示用の投稿者の名前
-        profile = Profile.objects.get(user=kwargs['object'].author)
-        context['author_name'] = profile.user_name
+        # 投稿者のプロフィール情報
+        author_profile = Profile.objects.get(user=kwargs['object'].author)
+        context['author_profile'] = author_profile
 
         # ログインユーザ
         context['login_user'] = self.request.user
