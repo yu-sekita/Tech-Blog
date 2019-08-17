@@ -52,6 +52,12 @@ section.section1 {
 
 .content a {
     color: #696969;
+    -webkit-transition: all .3s;
+}
+.content a:hover {
+    -webkit-transform: translateY(-10px);
+    -ms-transform: translateY(-10px);
+    transform: translateY(-10px);
 }
 
 /*ウィンドウ幅が0～749pxの場合にcssを適用*/
