@@ -53,7 +53,7 @@ section.section1 {
 .content a {
     color: #696969;
     -webkit-transition: all .3s;
-    box-shadow: 1px 1px 1px 1px #bbb;
+    box-shadow: 1px 1px 1px 1px #d3d3d3;
 }
 .content a:hover {
     -webkit-transform: translateY(-8px);
