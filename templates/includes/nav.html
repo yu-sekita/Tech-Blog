@@ -1,6 +1,8 @@
 
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top">
-    <i class="fas fa-book fa-3x" style="margin-left: 10px; margin-right: 10px;"></i>
+    <a href="{% url 'blogs:index' %}" style="color:#000000;">
+        <i class="fas fa-book fa-3x" style="margin-left: 10px; margin-right: 10px;"></i>
+    </a>
     <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#Navber" aria-controls="Navber" aria-expanded="false" aria-label="ナビゲーションの切替">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -8,7 +10,7 @@
     <div class="collapse navbar-collapse" id="Navber">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="{% url 'blogs:index' %}">Home</a>
+                <a class="nav-link" href="{% url 'blogs:index' %}">Blog</a>
             </li>
             {% if user.is_authenticated %}
                 <li class="nav-item">
