@@ -18,7 +18,7 @@
                     </div>
                 </div>
                 <div class="row content">
-                    <div class="col-sm-12 col-md-9 col-lg-9">
+                    <div class="col-sm-12 col-md-9 col-lg-9 left-content">
                         {% for article in articles %}
                         <a href="{% url 'blogs:article_detail' article.pk %}" class="card mb-3" style="max-width: 600px;">
                             <div class="row no-gutters">
@@ -38,6 +38,21 @@
                           </div>
                         </a>
                         {% endfor %}
+                    </div>
+
+                    <div class="col-sm-12 col-md-3 col-lg-3">
+                        <div class="card">
+                            <h5 class="card-header">カテゴリー</h5>
+                            <div class="card-body">
+                                <ul class="list-group list-group-flush">
+                                    {% for category, count in category_dict.items %}
+                                    <li class="list-group-item">
+                                        <a href="?category={{ category }}">{{ category }} ({{ count }})</a>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

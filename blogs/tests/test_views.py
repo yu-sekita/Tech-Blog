@@ -8,7 +8,7 @@ from django.utils import timezone
 from django.urls import reverse
 from PIL import Image
 
-from blogs.models import Article
+from blogs.models import Article, Category
 from blogs.views import _set_full_name
 from users.models import Profile
 
@@ -125,6 +125,60 @@ class ArticleListViewTest(TestCase):
         self.assertEqual(result[0].text, '1')
         self.assertEqual(result[1].text, '2')
         self.assertEqual(result[2].text, '3')
+
+    def test_match_catecory(self):
+        """カテゴリーでフィルターした場合の確認"""
+        # カテゴリーの準備
+        category = Category.objects.create(name='Python')
+        category.save()
+        # 記事の準備
+        Article.objects.create(title='test title', text='test text')
+        article = Article.objects.create(
+            title='test title with category',
+            text='test text with category',
+        )
+        article.categories.add(category)
+        article.save()
+
+        get_url = reverse('blogs:index') + '?category=Python'
+        response = self.client.get(get_url)
+        result = response.context['articles']
+        self.assertEqual(len(result), 1)
+        self.assertEqual(result[0].categories.all()[0].name, 'Python')
+
+    def test_unmatch_catecory(self):
+        """カテゴリーにマッチしなかった場合の確認"""
+        # カテゴリーの準備
+        category_python = Category.objects.create(name='Python')
+        category_ruby = Category.objects.create(name='Ruby')
+        category_python.save()
+        category_ruby.save()
+        # 記事の準備
+        Article.objects.create(title='test title', text='test text')
+        article = Article.objects.create(
+            title='test title with category',
+            text='test text with category',
+        )
+        article.categories.add(category_python)
+        article.save()
+
+        get_url = reverse('blogs:index') + '?category=Ruby'
+        response = self.client.get(get_url)
+        result = response.context['articles']
+        self.assertEqual(len(result), 0)
+
+    def test_not_exist_catecory(self):
+        """カテゴリーが存在しない場合の確認"""
+        # 記事の準備
+        Article.objects.create(
+            title='test title with category',
+            text='test text with category',
+        )
+
+        get_url = reverse('blogs:index') + '?category=Python'
+        response = self.client.get(get_url)
+        result = response.context['articles']
+        self.assertEqual(len(result), 0)
 
 
 class ArticleCreateViewTest(TestCase):

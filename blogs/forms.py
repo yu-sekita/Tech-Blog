@@ -8,7 +8,7 @@ class ArticleForm(forms.ModelForm):
 
     class Meta:
         model = Article
-        fields = ('thumbnail', 'title', 'text', 'is_public')
+        fields = ('thumbnail', 'categories', 'title', 'text', 'is_public')
         widgets = {
             'text': MarkdownxWidget(attrs={'class': 'textarea'}),
         }

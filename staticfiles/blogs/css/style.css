@@ -50,12 +50,12 @@ section.section1 {
     font-size: 15px;
 }
 
-.content a {
+.content .left-content a {
     color: #696969;
     -webkit-transition: all .3s;
     box-shadow: 1px 1px 1px 1px #d3d3d3;
 }
-.content a:hover {
+.content .left-content a:hover {
     -webkit-transform: translateY(-8px);
     -ms-transform: translateY(-8px);
     transform: translateY(-8px);
