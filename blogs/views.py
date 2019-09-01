@@ -10,7 +10,7 @@ from PIL import Image
 
 from blogs.escape import escape_markdown
 from blogs.forms import ArticleForm
-from blogs.models import Article
+from blogs.models import Article, Category
 from users.models import Profile
 
 
@@ -67,14 +67,34 @@ class ArticleListView(generic.ListView):
 
     def get_queryset(self):
         # 公開記事のみ、作成日時の降順でソートして表示
-        public_articles = Article.objects.filter(is_public=True)
-        orderd_public_article = public_articles.order_by('-created_at')
-        return orderd_public_article
+        articles = Article.objects.filter(is_public=True)
+        ordered_articles = articles.order_by('-created_at')
+        # カテゴリーでフィルターをかける場合
+        if 'category' in self.request.GET:
+            try:
+                category = Category.objects.get(
+                    name=self.request.GET['category']
+                )
+            # カテゴリーがDBに存在しなかったら空リストを返す
+            except Category.DoesNotExist:
+                return []
+            ordered_articles = ordered_articles.filter(categories=category)
+        return ordered_articles
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # ナブバー設定用ユーザーのフルネーム
         _set_full_name(context, self.request.user)
+        # カテゴリー
+        categories = Category.objects.all()
+        category_counts = (
+            Article.objects.filter(categories=category).count()
+            for category in categories
+        )
+        category_dict = {}
+        for category, category_count in zip(categories, category_counts):
+            category_dict.setdefault(category, category_count)
+        context['category_dict'] = category_dict
         return context
 
 

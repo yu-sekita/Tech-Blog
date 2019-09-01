@@ -13,3 +13,11 @@ def is_checkbox(field):
     if compiled.match(str(field)):
         return True
     return False
+
+
+@register.simple_tag
+def get_url_replace(request, field, value):
+    """GETパラメータの一部を置き換える"""
+    url_dict = request.GET.copy()
+    url_dict[field] = str(value)
+    return url_dict.urlencode()
