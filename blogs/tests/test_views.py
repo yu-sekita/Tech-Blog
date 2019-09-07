@@ -180,6 +180,28 @@ class ArticleListViewTest(TestCase):
         result = response.context['articles']
         self.assertEqual(len(result), 0)
 
+    def test_category_include_not_public_article(self):
+        """非公開記事を含んだカテゴリーがある場合の確認"""
+        # カテゴリーの準備
+        category = Category.objects.create(name='Python')
+        category.save()
+        # 記事の準備
+        Article.objects.create(title='test title', text='test text')
+        article = Article.objects.create(
+            title='test title with category',
+            text='test text with category',
+        )
+        article.categories.add(category)
+        article.is_public = False
+        article.save()
+
+        get_url = reverse('blogs:index') + '?category=Python'
+        response = self.client.get(get_url)
+        result = response.context['articles']
+        self.assertEqual(len(result), 0)
+        category_dict = response.context['category_dict']
+        self.assertEqual(category_dict[category], 0)
+
 
 class ArticleCreateViewTest(TestCase):
     """記事を追加するviewのテスト"""
