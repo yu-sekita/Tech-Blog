@@ -88,7 +88,7 @@ class ArticleListView(generic.ListView):
         # カテゴリー
         categories = Category.objects.all()
         category_counts = (
-            Article.objects.filter(categories=category).count()
+            Article.objects.filter(categories=category, is_public=True).count()
             for category in categories
         )
         category_dict = {}
