@@ -24,7 +24,9 @@ ACCEPT_TAGS = [
 def _image_resize(image, size):
     """画像を指定のサイズにリサイズする関数"""
     # 画像のフォーマットを取得
-    im_format = image.name.split('.')[1]
+    im_format = 'png'
+    if '.' in image.name:
+        im_format = image.name.split('.')[1]
 
     im = Image.open(image)
     im = im.resize(size, Image.LANCZOS)
