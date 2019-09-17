@@ -7,6 +7,7 @@ __pycache__
 .DS_Store
 
 media
+secret.yaml
 
 Pipfile.lock
 local_settings.py
