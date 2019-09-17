@@ -16,6 +16,78 @@ from users.models import Profile
 User = get_user_model()
 
 
+class ImageResizeTest(TestCase):
+    """画像を指定のサイズにリサイズする関数のテスト"""
+    def test_no_format(self):
+        """画像に拡張子がない場合のテスト"""
+        from blogs.views import _image_resize
+
+        # 画像の準備
+        test_imgfile = io.BytesIO()
+        test_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        test_image = test_image.convert('RGB')
+        test_image.save(test_imgfile, format='JPEG')
+        test_imgfile.name = 'ImageResizeTest_test_no_format'
+        test_imgfile.seek(0)
+
+        result_img = _image_resize(test_imgfile, size=(100, 100))
+        self.assertTrue('.' not in result_img.name)
+
+    def test_png_resize_success(self):
+        """png形式リサイズが成功する場合のテスト"""
+        from blogs.views import _image_resize
+
+        # 画像の準備
+        test_imgfile = io.BytesIO()
+        test_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        test_image = test_image.convert('RGB')
+        test_image.save(test_imgfile, format='JPEG')
+        test_imgfile.name = 'ImageResizeTest_test_no_format.png'
+        test_imgfile.seek(0)
+
+        result_img = _image_resize(test_imgfile, size=(100, 100))
+        result_img_size = Image.open(result_img).size
+        self.assertEqual(result_img_size, (100, 100))
+        self.assertEqual(result_img.content_type, 'image/png')
+        self.assertTrue('.png' in result_img.name)
+
+    def test_jpeg_resize_success(self):
+        """jpeg形式リサイズが成功する場合のテスト"""
+        from blogs.views import _image_resize
+
+        # 画像の準備
+        test_imgfile = io.BytesIO()
+        test_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        test_image = test_image.convert('RGB')
+        test_image.save(test_imgfile, format='JPEG')
+        test_imgfile.name = 'ImageResizeTest_test_no_format.jpeg'
+        test_imgfile.seek(0)
+
+        result_img = _image_resize(test_imgfile, size=(100, 100))
+        result_img_size = Image.open(result_img).size
+        self.assertEqual(result_img_size, (100, 100))
+        self.assertEqual(result_img.content_type, 'image/jpeg')
+        self.assertTrue('.jpeg' in result_img.name)
+
+    def test_jpg_resize_success(self):
+        """jpg形式リサイズが成功する場合のテスト"""
+        from blogs.views import _image_resize
+
+        # 画像の準備
+        test_imgfile = io.BytesIO()
+        test_image = Image.new('RGBA', size=(480, 480), color=(256, 0, 0))
+        test_image = test_image.convert('RGB')
+        test_image.save(test_imgfile, format='JPEG')
+        test_imgfile.name = 'ImageResizeTest_test_no_format.jpg'
+        test_imgfile.seek(0)
+
+        result_img = _image_resize(test_imgfile, size=(100, 100))
+        result_img_size = Image.open(result_img).size
+        self.assertEqual(result_img_size, (100, 100))
+        self.assertEqual(result_img.content_type, 'image/jpg')
+        self.assertTrue('.jpg' in result_img.name)
+
+
 class SetFullNameTest(TestCase):
     """コンテキストにユーザーのフルネームを設定する関数のテスト"""
     def test_no_user(self):
