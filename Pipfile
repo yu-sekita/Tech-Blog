@@ -15,6 +15,7 @@ django-heroku = "*"
 psycopg2-binary = "*"
 whitenoise = "*"
 django-cloudinary-storage = "*"
+pillow = "*"
 
 [requires]
 python_version = "3.7"
