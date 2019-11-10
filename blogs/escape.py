@@ -3,11 +3,11 @@ from collections import deque
 
 
 class Phrase:
-    """語句を表す
+    """語句を表す。
 
     Attributes:
-        is_accepted: エスケープを許容するかどうか(bool)
-        text: 語句本体(str)
+        is_accepted (bool): エスケープを許容するかどうか。
+        text (str): 語句本体。
     """
     def __init__(self, text=''):
         self.is_accepted = False
@@ -15,9 +15,10 @@ class Phrase:
 
 
 class Sentence:
-    """文を表す
+    """文を表す。
 
-    Phraseの集まり
+    Attributes:
+        _phrases (deque): Phraseのリスト。
     """
     def __init__(self):
         self._phrases = deque()
@@ -37,9 +38,29 @@ class Sentence:
 
 
 def create_sentence(text):
-    """textからphraseで区切ったsentenceを作る
+    """textからphraseで区切ったsentenceを作る。
 
-    ```で括られている文とそれ以外の文を作成
+    Args:
+        text (str): senetence作成前の文字列。
+
+    Returns:
+        Sentence: Phraseのリストを保持。
+
+    Examples:
+        ```で括られている文とそれ以外の文を作成
+        >>> text = '''
+        これは文です。
+        ```
+        ここはエスケープ対象外の文です。
+        ```
+        ここはエスケープ対象の文です。
+        '''
+        >>> create_sentence(text)
+        Sentence(
+            Phrase('これは文です。\\n'),
+            Phrase('```\\nここはエスケープ対象外の文です。```\\n'),
+            Phrase('ここはエスケープ対象の文です。\\n')
+        )
     """
     sentence = Sentence()
     # phraseは0から
@@ -77,17 +98,39 @@ def create_sentence(text):
 
 
 def replace_trans(text, d):
-    """replaceを使って変換を行う関数"""
+    """replaceを使って変換を行う。
+
+    Args:
+        text (str): 変換対象文字列。
+        d (dict): 変換する文字を定義。
+
+    Returns:
+        str: 変換後の文字列。
+
+    Examples:
+        >>> text = 'これは<br>エスケープされます。'
+        >>> d = {'<': '&lt;', '>': '&gt;'}
+        >>> str_trans(text, d)
+        'これは&lt;br&gt;エスケープされます。'
+    """
     for k, v in d.items():
         text = text.replace(k, v)
     return text
 
 
 def str_trans(text, d):
-    """str.translateを使って変換を行う関数
+    """str.translateを使って変換を行う。
 
-    引数のdのkeyは必ず1文字の場合のみ使える
-      ex) d = { '<': '&lt;', '>': '&gt;'}
+    Args:
+        text (str): 変換対象文字列。
+        d (dict): 変換する文字を定義。
+
+    Returns:
+        str: 変換後の文字列。
+
+    Raises:
+        ValueError: dに2以上のサイズのkeyを含む場合。
+
     """
     if len([k for k in d.keys() if len(k) > 1]) > 0:
         raise ValueError('key mast be one size')
@@ -96,22 +139,18 @@ def str_trans(text, d):
 
 
 class Translater:
-    """文字の置換を行うクラス
+    """文字の置換を行う。
 
     Attributes:
-        permutation_group: 置換前と置換後を保存するためのdict型変数
+        translate (function): replaceを使って変換する関数。
+        permutation_group (dict): 置換前と置換後を定義したグループを保持。
 
     Methods:
-        group: permutation_groupを返す
-        setgroup: permutation_groupに保存
-        translate: permutation_groupに保存されている文字で変換
+        group: permutation_groupを返す。
+        setgroup: permutation_groupに保存。
+        translate: permutation_groupに保存されている文字で変換。
     """
     def __init__(self):
-        """Constructor.置換前と置換後を保存するためのdictを作成
-
-        permutation_group: 置換前がkeyで、置換後がvalue
-                 ex) permutation_group = { '&lt;': '<' }
-        """
         self._translate = replace_trans
         self._permutation_group = {}
 
@@ -120,25 +159,26 @@ class Translater:
         return self._permutation_group
 
     def setgroup(self, key, value):
-        """置換前と置換後を保存する"""
+        """置換前と置換後を保存する。"""
         self._permutation_group.setdefault(key, value)
 
     def translate(self, text):
-        """置換を行う"""
+        """置換を行う。"""
         escaped_text = self._translate(text, self._permutation_group)
         return escaped_text
 
 
 class HtmlAccepter(Translater):
-    """HTMLタグのアンエスケープを行うクラス"""
+    """HTMLタグのアンエスケープを行う。"""
     def __init__(self):
         super().__init__()
 
     def accepts(self, *args):
-        """エスケープを無効したいタグを登録
+        """エスケープを無効したいタグを登録。
 
-        引数にstr, list, tupleを受け取って、
-        その数だけタグを生成し、permutation_groupに保存する
+        Args:
+            args (str, list or tuple): 受け取った引数の数だけタグを生成し、
+                                       permutation_groupに保存する。
         """
         if not isinstance(args, tuple):
             raise ValueError('input string type')
@@ -169,14 +209,15 @@ class HtmlAccepter(Translater):
         return self._permutation_group
 
     def unescape_html_filter(self, text):
-        """許容されたhtml特殊文字はアンエスケープする
+        """許容されたhtml特殊文字をアンエスケープする。
 
         ```で囲まれたブロックはエスケープ対象外
 
-        Arg:
-            text: アンエスケープしてほしい文字列(str)
-        Return:
-            unescaped_text: ```で囲まれた文以外アンエスケープされたtext(str)
+        Args:
+            text (str): アンエスケープしてほしい文字列
+
+        Returns:
+            str: ```で囲まれた文以外アンエスケープした文字列。
         """
         sentence = create_sentence(text)
 
@@ -186,12 +227,22 @@ class HtmlAccepter(Translater):
                 unescaped_text += phrase.text
             else:
                 unescaped_text += self.translate(phrase.text)
-
         return unescaped_text
 
 
 def escape_html(text):
-    """Htmlのタグなどをエスケープする"""
+    """Htmlのタグなどをエスケープする。
+
+    '&'は初めにエスケープする。
+    エスケープ対象文字は全てサイズが1なので、
+    str_trans関数を使う。
+
+    Args:
+        text (str): エスケープ対象文字列。
+
+    Returns:
+        str: エスケープ後文字列。
+    """
     d = {
         '&': '&amp;',
         '<': '&lt;',
@@ -203,14 +254,15 @@ def escape_html(text):
 
 
 def escape_html_filter(text):
-    """対象のtextのHtml特殊文字をエスケープする
+    """Html特殊文字をエスケープする。
 
-    ```で囲まれたブロックはエスケープ対象外
+    ```で囲まれたブロックはエスケープ対象外。
 
-    Arg:
-        text: エスケープしてほしい文字列(str)
-    Return:
-        escaped_text: ```で囲まれた文以外エスケープされたtext(str)
+    Args:
+        text (str): エスケープしてほしい文字列。
+
+    Returns:
+        str: ```で囲まれた文以外エスケープした文字列。
     """
     sentence = create_sentence(text)
 
@@ -224,9 +276,15 @@ def escape_html_filter(text):
 
 
 def _create_escape_filters(*accept_texts):
-    """フィルターを作成
+    """フィルターを作成。
 
-    エスケープやアンエスケープ処理を行う関数のリストを返す
+    エスケープやアンエスケープ処理を行う関数のリストを返す。
+
+    Args:
+        accepts_texts (str, list or tuple): エスケープ対象外文字列。
+
+    Yields:
+        function: escape_html_filterとunescape_html_filter。
     """
     # Html特殊文字をエスケープするフィルター
     yield escape_html_filter
@@ -239,13 +297,16 @@ def _create_escape_filters(*accept_texts):
 
 
 def escape_markdown(text, *accept_texts):
-    """markdown用のタグをエスケープする関数
+    """markdown用のタグをエスケープ。
 
-    エスケープしないタグがあれば無効とする
+    エスケープしないタグがあれば無効とする。
 
     Args:
-        text: エスケープ対象文字列
-        accept_texts: エスケープしないタグ
+        text (str): エスケープ対象文字列。
+        accept_texts (str, list or tuple): エスケープしないタグ。
+
+    Returns:
+        str: エスケープ後文字列。
     """
     filters = _create_escape_filters(*accept_texts)
     for filter in filters:
