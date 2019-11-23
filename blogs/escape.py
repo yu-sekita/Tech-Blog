@@ -29,12 +29,11 @@ class Sentence:
 
     def set_phrase(self, phrase):
         if isinstance(phrase, str):
-            _phrase = Phrase(phrase)
+            self._phrases.append(Phrase(phrase))
         elif isinstance(phrase, Phrase):
-            _phrase = phrase
+            self._phrases.append(phrase)
         else:
             raise ValueError('phrase must be str or Phrase instance')
-        self._phrases.append(_phrase)
 
 
 def create_sentence(text):
@@ -130,9 +129,9 @@ def str_trans(text, d):
 
     Raises:
         ValueError: dに2以上のサイズのkeyを含む場合。
-
     """
-    if len([k for k in d.keys() if len(k) > 1]) > 0:
+    one_over_size_in_keys = [k for k in d.keys() if len(k) > 1]
+    if len(one_over_size_in_keys) > 0:
         raise ValueError('key mast be one size')
 
     return text.translate(str.maketrans(d))
@@ -180,6 +179,19 @@ class HtmlAccepter(Translater):
             args (str, list or tuple): 受け取った引数の数だけタグを生成し、
                                        permutation_groupに保存する。
         """
+        accept_texts = self._create_accept_texts(args)
+        for accept_text in accept_texts:
+            # 開始タグを作成し登録する
+            escaped_start_tag = self._create_escaped_tag(accept_text)
+            unescaped_start_tag = self._create_tag(accept_text)
+            self.setgroup(escaped_start_tag, unescaped_start_tag)
+            # 終了タグを作成し登録する
+            escaped_end_tag = self._create_escaped_tag('/' + accept_text)
+            unescaped_end_tag = self._create_tag('/' + accept_text)
+            self.setgroup(escaped_end_tag, unescaped_end_tag)
+        return self._permutation_group
+
+    def _create_accept_texts(self, args):
         if not isinstance(args, tuple):
             raise ValueError('input string type')
 
@@ -195,18 +207,13 @@ class HtmlAccepter(Translater):
             accept_texts += args[0]
         else:
             raise ValueError('input string type')
+        return accept_texts
 
-        for accept_text in accept_texts:
-            # 開始タグを作成し登録する
-            escaped_start_tag = '&lt;' + accept_text + '&gt;'
-            unescaped_start_tag = '<' + accept_text + '>'
-            self.setgroup(escaped_start_tag, unescaped_start_tag)
-            # 終了タグを作成し登録する
-            escaped_end_tag = '&lt;' + '/' + accept_text + '&gt;'
-            unescaped_end_tag = '<' + '/' + accept_text + '>'
-            self.setgroup(escaped_end_tag, unescaped_end_tag)
+    def _create_tag(self, tag_name):
+        return '<' + tag_name + '>'
 
-        return self._permutation_group
+    def _create_escaped_tag(self, tag_name):
+        return '&lt;' + tag_name + '&gt;'
 
     def unescape_html_filter(self, text):
         """許容されたhtml特殊文字をアンエスケープする。
