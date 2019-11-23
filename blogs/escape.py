@@ -13,6 +13,12 @@ class Phrase:
         self.is_accepted = False
         self.text = text
 
+    def __str__(self):
+        return 'Phrase(' + self.text + ')'
+
+    def __repr__(self):
+        return 'Phrase(' + self.text + ')'
+
 
 class Sentence:
     """文を表す。
@@ -34,6 +40,12 @@ class Sentence:
             self._phrases.append(phrase)
         else:
             raise ValueError('phrase must be str or Phrase instance')
+
+    def __str__(self):
+        return 'Sentence(' + str(self._phrases) + ')'
+
+    def __repr__(self):
+        return 'Sentence(' + str(self._phrases) + ')'
 
 
 def create_sentence(text):
@@ -251,10 +263,10 @@ def escape_html(text):
         str: エスケープ後文字列。
     """
     d = {
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
+        '&':  '&amp;',
+        '<':  '&lt;',
+        '>':  '&gt;',
+        '"':  '&quot;',
         '\'': '&#39;'
     }
     return str_trans(text, d)
