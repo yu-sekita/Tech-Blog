@@ -10,9 +10,9 @@
 
 ## バージョン
 
-*  Python &nbsp; 3.7.3  
-*  Django &nbsp; 2.2.3
-*  pip &nbsp; 9.1.1  
+*  Python &nbsp; 3.8.0  
+*  Django &nbsp; 2.2.8
+*  pip &nbsp; 19.2.3  
 
 <br>
 

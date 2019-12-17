@@ -6,7 +6,6 @@ verify_ssl = true
 [dev-packages]
 
 [packages]
-django = "*"
 django-bootstrap4 = "*"
 django-markdownx = "*"
 django-environ = "*"
@@ -15,6 +14,7 @@ django-heroku = "*"
 psycopg2-binary = "*"
 whitenoise = "*"
 django-cloudinary-storage = "*"
+django = "==2.2.8"
 
 [requires]
-python_version = "3.7"
+python_version = "3.8"
