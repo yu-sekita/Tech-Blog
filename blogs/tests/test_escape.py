@@ -21,6 +21,14 @@ class PhraseTest(TestCase):
         self.assertFalse(phrase.is_accepted)
         self.assertEqual(phrase.text, 'test text')
 
+    def test_str(self):
+        """__str__が正常に動作することの確認"""
+        from blogs.escape import Phrase
+
+        phrase = Phrase('test __str__')
+        print(phrase)
+        self.assertEqual(str(phrase), 'Phrase(test __str__)')
+
 
 class SentenceTest(TestCase):
     """文を表すクラスのテスト"""
@@ -67,6 +75,19 @@ class SentenceTest(TestCase):
             sentence.set_phrase(10)
         error_message = 'phrase must be str or Phrase instance'
         self.assertEqual(error.exception.args[0], error_message)
+
+    def test_str(self):
+        """__str__が正常に設定されることの確認"""
+        from blogs.escape import Phrase, Sentence
+
+        sentence = Sentence()
+        phrase1 = Phrase('phrase1')
+        sentence.set_phrase(phrase1)
+        phrase2 = Phrase('phrase2')
+        sentence.set_phrase(phrase2)
+
+        result_str = 'Sentence(deque([Phrase(phrase1), Phrase(phrase2)]))'
+        self.assertEqual(str(sentence), result_str)
 
 
 class CreateSentenceTest(TestCase):
