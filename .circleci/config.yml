@@ -2,7 +2,7 @@ version: 2
 jobs:
     lint:
         docker:
-            - image: circleci/python:3.7
+            - image: circleci/python:3.8
         steps:
             - checkout
             - run: |
@@ -23,18 +23,18 @@ jobs:
 
     test:
         docker:
-            - image: circleci/python:3.7
+            - image: circleci/python:3.8
         steps:
             - checkout
             - run: echo $ENV_FILE | base64 -di > .env
             - run: |
-                pipenv install django==2.2.4
+                pipenv install django==2.2.8
                 pipenv run python manage.py migrate
                 pipenv run python manage.py test
 
     deploy:
         docker:
-            - image: circleci/python:3.7
+            - image: circleci/python:3.8
         steps:
             - checkout
             - run:
