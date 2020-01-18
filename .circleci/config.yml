@@ -28,7 +28,7 @@ jobs:
             - checkout
             - run: echo $ENV_FILE | base64 -di > .env
             - run: |
-                pipenv install django==2.2.8
+                pipenv install django==2.2.9
                 pipenv run python manage.py migrate
                 pipenv run python manage.py test
 
