@@ -5,6 +5,8 @@ db.sqlite3
 *.swp
 __pycache__
 .DS_Store
+.vscode/
+.pylintrc
 
 media
 secret.yaml
