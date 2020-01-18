@@ -16,7 +16,7 @@ django-heroku = "*"
 psycopg2-binary = "*"
 whitenoise = "*"
 django-cloudinary-storage = "*"
-django = "==2.2.8"
+django = "==2.2.9"
 
 [requires]
 python_version = "3.8"
