@@ -11,7 +11,6 @@ __pycache__
 media
 secret.yaml
 
-Pipfile.lock
 local_settings.py
 .env
 .env-prod
