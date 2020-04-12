@@ -113,6 +113,9 @@ class ArticleCreateView(LoginRequiredMixin, generic.CreateView):
             escaped_text = escape_markdown(form.instance.text, ACCEPT_TAGS)
             form.instance.text = escaped_text
             form.instance.author = self.request.user
+            form.instance.keywords = self._split_keywords(
+                keywords=form.instance.keywords
+            )
         # 画像処理後、親クラスのform_validを呼び出す
         return self._image_proc(form)
 
@@ -121,6 +124,10 @@ class ArticleCreateView(LoginRequiredMixin, generic.CreateView):
         # ナブバー設定用ユーザーのフルネーム
         _set_full_name(context, self.request.user)
         return context
+
+    def _split_keywords(self, keywords):
+        keywords = keywords.replace(' ', '')
+        return keywords.replace(',', ' ')
 
     def _image_proc(self, form):
         # formにデータがない場合
