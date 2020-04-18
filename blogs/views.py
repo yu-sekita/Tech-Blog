@@ -126,6 +126,8 @@ class ArticleCreateView(LoginRequiredMixin, generic.CreateView):
         return context
 
     def _split_keywords(self, keywords):
+        if not keywords:
+            return keywords
         keywords = keywords.replace(' ', '')
         return keywords.replace(',', ' ')
 

@@ -35,9 +35,9 @@ class Article(models.Model):
     thumbnail = models.ImageField(upload_to='thumbnail', blank=True)
     categories = models.ManyToManyField(Category, blank=True)
     # SEO
-    title_for_seo = models.CharField('タイトル', max_length=255, null=True)
-    description = models.TextField(null=True)
-    keywords = models.CharField(max_length=255, null=True)
+    title_seo = models.CharField('タイトル', max_length=255, null=True, blank=True)
+    description = models.TextField(null=True, blank=True)
+    keywords = models.CharField(max_length=255, null=True, blank=True)
 
     def __str__(self):
         return self.title

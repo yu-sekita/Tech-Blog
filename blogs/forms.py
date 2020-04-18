@@ -5,15 +5,18 @@ from blogs.models import Article
 
 
 class ArticleForm(forms.ModelForm):
-    keywords = forms.CharField(widget=forms.TextInput(attrs={
-        'placeholder': 'seo,key,word'
-    }))
+    keywords = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'seo,key,word'
+        })
+    )
 
     class Meta:
         model = Article
         fields = (
             'thumbnail', 'categories', 'title', 'text', 'is_public',
-            'title_for_seo', 'description', 'keywords'
+            'title_seo', 'description', 'keywords'
         )
         widgets = {
             'text': MarkdownxWidget(attrs={'class': 'textarea'}),
