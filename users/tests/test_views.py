@@ -488,50 +488,50 @@ class ProfileEditViewTest(TestCase):
         self.assertEqual(confirm_profile.user_name, 'Taro-Tanaka')
 
 
-class UserCreateViewTest(TestCase):
-    """ユーザの仮登録をするviewのテスト"""
-    def test_get(self):
-        """getリクエスト時のテスト"""
-        response = self.client.get(reverse('users:user_create'))
-        # ステータス200
-        self.assertEqual(response.status_code, 200)
-        # テンプレートuser_create.html
-        self.assertTemplateUsed(response, 'users/user_create.html')
+# class UserCreateViewTest(TestCase):
+#     """ユーザの仮登録をするviewのテスト"""
+#     def test_get(self):
+#         """getリクエスト時のテスト"""
+#         response = self.client.get(reverse('users:user_create'))
+#         # ステータス200
+#         self.assertEqual(response.status_code, 200)
+#         # テンプレートuser_create.html
+#         self.assertTemplateUsed(response, 'users/user_create.html')
 
-    def test_no_data(self):
-        """postリクエスト時、データがない時のテスト"""
-        data = {}
-        response = self.client.post(reverse('users:user_create'), data=data)
-        # ステータス200
-        self.assertEqual(response.status_code, 200)
-        # テンプレートuser_create.html
-        self.assertTemplateUsed(response, 'users/user_create.html')
+#     def test_no_data(self):
+#         """postリクエスト時、データがない時のテスト"""
+#         data = {}
+#         response = self.client.post(reverse('users:user_create'), data=data)
+#         # ステータス200
+#         self.assertEqual(response.status_code, 200)
+#         # テンプレートuser_create.html
+#         self.assertTemplateUsed(response, 'users/user_create.html')
 
-    def test_with_data(self):
-        """postリクエスト時、データ有りのテスト"""
-        data = {
-            'email': 'test@test.com',
-            'password1': 'test_password',
-            'password2': 'test_password',
-        }
-        response = self.client.post(reverse('users:user_create'), data=data)
-        # ステータス302
-        self.assertEqual(response.status_code, 302)
-        # リダイレクトuser_create_done
-        self.assertRedirects(response, '/user_create/done/')
+#     def test_with_data(self):
+#         """postリクエスト時、データ有りのテスト"""
+#         data = {
+#             'email': 'test@test.com',
+#             'password1': 'test_password',
+#             'password2': 'test_password',
+#         }
+#         response = self.client.post(reverse('users:user_create'), data=data)
+#         # ステータス302
+#         self.assertEqual(response.status_code, 302)
+#         # リダイレクトuser_create_done
+#         self.assertRedirects(response, '/user_create/done/')
 
-    def test_create_profile(self):
-        """post成功時、プロフィールも保存されていることのテスト"""
-        data = {
-            'email': 'test@test.com',
-            'password1': 'test_password',
-            'password2': 'test_password',
-        }
-        self.client.post(reverse('users:user_create'), data=data)
-        # プロフィールが登録されていること
-        user = get_user_model().objects.get(email=data['email'])
-        profile = Profile.objects.get(user=user)
-        self.assertTrue(profile.user_name is not None)
+#     def test_create_profile(self):
+#         """post成功時、プロフィールも保存されていることのテスト"""
+#         data = {
+#             'email': 'test@test.com',
+#             'password1': 'test_password',
+#             'password2': 'test_password',
+#         }
+#         self.client.post(reverse('users:user_create'), data=data)
+#         # プロフィールが登録されていること
+#         user = get_user_model().objects.get(email=data['email'])
+#         profile = Profile.objects.get(user=user)
+#         self.assertTrue(profile.user_name is not None)
 
 
 class UserCreateCompleteViewTest(TestCase):
@@ -647,6 +647,22 @@ class UserCreateCompleteViewTest(TestCase):
 
 class PasswordResetTest(TestCase):
     """パスワード変更用viewのテスト"""
+    def setUp(self):
+        # ユーザとプロフィールを作成
+        self.user = get_user_model().objects.create_user(
+            email='test@test.com',
+            password='password'
+        )
+        self.user.is_active = True
+        self.user.save()
+
+        profile = Profile.objects.create(
+            user=self.user,
+            user_name='Taro-Tanaka',
+            hobby='Camp',
+        )
+        profile.save()
+
     def test_get(self):
         """getリクエスト"""
         response = self.client.get(reverse('users:password_reset'))
@@ -655,7 +671,16 @@ class PasswordResetTest(TestCase):
         # テンプレートpassword_reset.html
         self.assertTemplateUsed(response, 'users/password_reset.html')
 
-    def test_post(self):
+    def test_post_ng(self):
+        """postリクエスト"""
+        data = {
+            'email': 'test2@test.com',
+        }
+        response = self.client.post(reverse('users:password_reset'), data=data)
+        # ステータス400
+        self.assertEqual(response.status_code, 400)
+
+    def test_post_ok(self):
         """postリクエスト"""
         data = {
             'email': 'test@test.com',
