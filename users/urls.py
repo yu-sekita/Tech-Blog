@@ -10,7 +10,7 @@ from users.views import (
     ProfileView,
     ProfileEditView,
     ProfileImageEditView,
-    UserCreateView,
+    # UserCreateView,
     UserCreateDoneView,
     UserCreateCompleteView,
 )
