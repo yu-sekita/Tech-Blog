@@ -11,5 +11,4 @@ WORKDIR $APP_HOME
 COPY Pipfile Pipfile.lock /server/
 RUN pip install pipenv
 RUN pipenv install --system
-COPY entrypoint.prod.sh $APP_HOME/
 COPY ./ $APP_HOME
