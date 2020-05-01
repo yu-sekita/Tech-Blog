@@ -60,6 +60,13 @@ def _set_full_name(context, user):
         return context
 
 
+def _split_keywords(keywords):
+    if not keywords:
+        return keywords
+    keywords = keywords.replace(' ', '')
+    return keywords.replace(',', ' ')
+
+
 class ArticleListView(generic.ListView):
     """記事の一覧を表示するview"""
     model = Article
@@ -113,6 +120,9 @@ class ArticleCreateView(LoginRequiredMixin, generic.CreateView):
             escaped_text = escape_markdown(form.instance.text, ACCEPT_TAGS)
             form.instance.text = escaped_text
             form.instance.author = self.request.user
+            form.instance.keywords = _split_keywords(
+                keywords=form.instance.keywords
+            )
         # 画像処理後、親クラスのform_validを呼び出す
         return self._image_proc(form)
 
@@ -181,6 +191,9 @@ class ArticleEditView(LoginRequiredMixin, generic.UpdateView):
             # ACCEPT_TAGSに登録していないタグをエスケープ
             escaped_text = escape_markdown(form.instance.text, ACCEPT_TAGS)
             form.instance.text = escaped_text
+            form.instance.keywords = _split_keywords(
+                keywords=form.instance.keywords
+            )
         # 画像処理後、親クラスのform_validを呼び出す
         return self._image_proc(form)
 

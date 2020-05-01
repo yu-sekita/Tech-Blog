@@ -17,6 +17,7 @@ psycopg2-binary = "*"
 whitenoise = "*"
 django-cloudinary-storage = "*"
 django = "==2.2.10"
+uwsgi = "*"
 
 [requires]
 python_version = "3.8"

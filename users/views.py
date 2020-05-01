@@ -261,6 +261,12 @@ class PasswordReset(PasswordResetView):
     form_class = MyPasswordResetForm
     success_url = reverse_lazy('users:password_reset_done')
 
+    def form_valid(self, form):
+        emails = (u.email for u in User.objects.all())
+        if form.data['email'] not in emails:
+            return HttpResponseBadRequest()
+        return super().form_valid(form)
+
 
 class PasswordResetDone(PasswordResetDoneView):
     """パスワード変更用URLの送付後"""

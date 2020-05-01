@@ -12,20 +12,45 @@
             {% csrf_token %}
             {{ form.non_field_errors }}
 
-            {% for field in form %}
-                {{ field.errors }}
-                {% if field|is_checkbox %}
-                    <div class="form-group form-check">
-                        {{ field }}
-                        <label class="form-check-label">{{ field.label }}</label>
-                    </div>
-                {% else %}
-                    <div class="form-group">
-                        <label>{{ field.label }}</label>
-                        {{ field }}
-                    </div>
-                {% endif %}
-            {% endfor %}
+            <div class="form-group">
+                {{ form.title.errors }}
+                <label>{{ form.title.label }}</label>
+                {{ form.title }}
+            </div>
+            <div class="form-group">
+                {{ form.thumbnail.errors }}
+                <label>{{ form.thumbnail.label }}</label>
+                {{ form.thumbnail }}
+            </div>
+            <div class="form-group">
+                {{ form.categories.errors }}
+                <label>{{ form.categories.label }}</label>
+                {{ form.categories }}
+            </div>
+            <div class="form-group">
+                {{ form.title_seo.errors }}
+                <label>SEO用title</label>
+                {{ form.title_seo }}
+            </div>
+            <div class="form-group">
+                {{ form.description.errors }}
+                <label>description</label>
+                {{ form.description }}
+            </div>
+            <div class="form-group">
+                {{ form.keywords.errors }}
+                <label>keywords（カンマ区切り)</label>
+                {{ form.keywords }}
+            </div>
+            <div class="form-group">
+                {{ form.text.errors }}
+                <label>{{ form.text.label }}</label>
+                {{ form.text }}
+            </div>
+            <div class="form-group form-check">
+                {{ form.is_public }}
+                <label class="form-check-label">{{ form.is_public.label }}</label>
+            </div>
 
             <div class="form-group row mt-5 mb-5">
                 <div class="col-md-12">

@@ -3,7 +3,9 @@
 {% load markdown %}
 {% load static %}
 
-{% block title %}{{ article.title }}{% endblock %}
+{% block title %}{{ article.title_seo }}{% endblock %}
+{% block description %}{{ article.description }}{% endblock %}
+{% block keywords %}{{ article.keywords }}{% endblock %}
 
 {% block content %}
     <div class="container mb-5" style="margin-top: 100px;">
