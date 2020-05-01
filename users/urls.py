@@ -10,7 +10,7 @@ from users.views import (
     ProfileView,
     ProfileEditView,
     ProfileImageEditView,
-    UserCreateView,
+    # UserCreateView,
     UserCreateDoneView,
     UserCreateCompleteView,
 )
@@ -31,7 +31,7 @@ urlpatterns = [
     path('login/', Login.as_view(), name='login'),
     path('logout/', Logout.as_view(), name='logout'),
     # User create
-    path('user_create/', UserCreateView.as_view(), name='user_create'),
+    # path('user_create/', UserCreateView.as_view(), name='user_create'),
     path('user_create/done/',
          UserCreateDoneView.as_view(), name='user_create_done'),
     path('user_create/complete/<token>/',
