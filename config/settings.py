@@ -17,7 +17,7 @@ import environ
 
 
 env = environ.Env(DEBUG=(bool, False),)
-env.read_env('.env')
+env.read_env('.env-prod')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
@@ -152,7 +152,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
-
+ALLOWED_HOSTS = ['localhost']
 if DEBUG:
     # Database
     # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
@@ -164,7 +164,37 @@ if DEBUG:
         os.path.join(BASE_DIR, "static"),
     )
 
-    ALLOWED_HOSTS = ['localhost']
+elif os.getenv('DB_ENV', '') == 'mysql':
+    ALLOWED_HOSTS.append(env('ALLOWED_HOSTS'))
+
+    # mysql
+    DATABASES = {
+        'default': {
+            'ENGINE': env('DB_ENGINE'),
+            'NAME': env('DB_NAME'),
+            'USER': env('DB_USER'),
+            'PASSWORD': env('DB_PASSWORD'),
+            'HOST': env('DB_HOST'),
+            'PORT': env('DB_PORT'),
+        }
+    }
+
+    # cloudinary
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': env('CLOUD_NAME'),
+        'API_KEY': env('CLOUD_API_KEY'),
+        'API_SECRET': env('CLOUD_API_SECRET'),
+    }
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+    # email
+    EMAIL_HOST = env('EMAIL_HOST')
+    EMAIL_PORT = env('EMAIL_PORT')
+    EMAIL_HOST_USER = env('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = env('EMAIL_HOST_PASSWORD')
+    EMAIL_USE_TLS = env('EMAIL_USE_TLS')
+    EMAIL_BACKEND = env('EMAIL_BACKEND')
+
 else:
     import django_heroku
     django_heroku.settings(locals())
