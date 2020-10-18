@@ -17,7 +17,7 @@ import environ
 
 
 env = environ.Env(DEBUG=(bool, False),)
-env.read_env('.env-prod')
+env.read_env('.env')
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
