@@ -1,10 +1,8 @@
-import datetime
 import io
 import uuid
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase
-from django.utils import timezone
 from django.urls import reverse
 from PIL import Image
 
