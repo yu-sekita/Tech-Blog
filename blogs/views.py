@@ -77,7 +77,6 @@ class ArticleListView(generic.ListView):
     def get_queryset(self):
         # 公開記事のみ、作成日時の降順でソートして表示
         articles = Article.objects.filter(is_public=True)
-        ordered_articles = articles.order_by('-created_at')
         # カテゴリーでフィルターをかける場合
         if 'category' in self.request.GET:
             try:
@@ -87,8 +86,8 @@ class ArticleListView(generic.ListView):
             # カテゴリーがDBに存在しなかったら空リストを返す
             except Category.DoesNotExist:
                 return []
-            ordered_articles = ordered_articles.filter(categories=category)
-        return ordered_articles
+            return articles.filter(categories=category).order_by('-created_at')
+        return articles.order_by('-created_at')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
