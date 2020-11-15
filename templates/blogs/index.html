@@ -32,6 +32,7 @@
                             <div class="col-md-8">
                                 <div class="card-body">
                                     <h5 class="card-title">{{ article.title }}</h5>
+                                    <p class="card-text"></p>{{ article.created_at | date:"Y/n/j" }}</p>
                                     <p class="card-text">{{ article.description | truncatechars:60}}</p>
                                 </div>
                             </div>
