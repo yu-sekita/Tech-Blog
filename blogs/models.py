@@ -25,7 +25,7 @@ class Article(models.Model):
     title = models.CharField('タイトル', max_length=255)
     # Markdown形式
     text = MarkdownxField('本文')
-    created_at = models.DateTimeField('作成日', default=timezone.now())
+    created_at = models.DateTimeField('作成日', auto_now_add=True, null=True, blank=True)
     author = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
