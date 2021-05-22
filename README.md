@@ -4,7 +4,6 @@
 
 ## 目的
 このサイトはプログラミング関係の知識や、得た知見を外部に発信するためのブログです。
-また、会員登録すれば誰でも投稿することができます。
 
 <br>
 
@@ -31,4 +30,4 @@
 
 ## リンク
 
-[Yu Tech Blog](https://yu-tech-blog.herokuapp.com)
+[Yu Tech Blog](https://yusekita.com)
